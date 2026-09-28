@@ -1,0 +1,339 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs,enumitem,xcolor,fancyhdr}
+\usepackage[most]{tcolorbox}
+\usepackage{listings}
+
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{codebg}{HTML}{F5F5F5}
+\definecolor{tipbg}{HTML}{FFF6DD}
+
+\lstset{
+  language=Python, basicstyle=\ttfamily\small, backgroundcolor=\color{codebg},
+  keywordstyle=\color{accent}\bfseries, commentstyle=\color{gray}\itshape,
+  frame=single, rulecolor=\color{gray!40}, columns=fullflexible,
+  keepspaces=true, showstringspaces=false, aboveskip=6pt, belowskip=6pt
+}
+
+\newtcolorbox{keybox}[1][]{colback=accent!6, colframe=accent, boxrule=0.6pt,
+  arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt, fonttitle=\bfseries, #1}
+\newtcolorbox{tipbox}[1][]{colback=tipbg, colframe=orange!70!black, boxrule=0.6pt,
+  arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt, fonttitle=\bfseries, #1}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{var}}
+\newcommand{\Cov}{\operatorname{cov}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\given}{\mid}
+\newcommand{\Bern}{\text{Bernoulli}}
+\newcommand{\Unif}{\text{Uniform}}
+\newcommand{\Norm}{\text{Normal}}
+\newcommand{\py}[1]{\texttt{#1}}
+
+\newenvironment{soln}{\par\smallskip\noindent\textbf{Solution.}\ }{\par\medskip}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\emergencystretch=3em
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Math 50 -- Midterm 1 practice solutions}
+\rhead{Units 1--2}
+\cfoot{\thepage}
+
+\title{\textbf{Math 50 Midterm 1: Practice Problem Solutions}\\[2pt]\large Worked solutions to the 21 practice problems on the exam study-guide page}
+\author{}
+\date{}
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+\begin{tipbox}[title={Read this first}]
+Try each problem on your own first (the statements are also in \texttt{midterm1\_notes.pdf}, Section 3). Problems 20 and 21 use scatter plots on the
+exam page; the descriptions and estimates below were read off those plots by eye, so treat them as approximate.
+Every other number was checked by exact arithmetic or simulation.
+\end{tipbox}
+
+%---------------- Problem 1
+\subsection*{Problem 1}
+$(X,Y)$ has $X\in\{0,1\}$, $Y\in\{0,1,2\}$ and
+\begin{center}
+\begin{tabular}{c|ccc}
+$P(X,Y)$ & $Y=0$ & $Y=1$ & $Y=2$\\\hline
+$X=0$ & 0.10 & 0.15 & 0.20\\
+$X=1$ & 0.25 & 0.05 & 0.25
+\end{tabular}
+\end{center}
+(a) Compute $P(X=1)$ and $P(Y=2)$. (b) Compute $P(X=1\mid Y=2)$. (c) Are $X$ and $Y$ independent? Justify with a single calculation. (d) Compute $E[Y\mid X=0]$.
+\begin{soln}
+(a) $P(X{=}1)=0.25+0.05+0.25=0.55$; $P(Y{=}2)=0.20+0.25=0.45$.\\
+(b) $P(X{=}1\mid Y{=}2)=\dfrac{0.25}{0.45}=\dfrac59\approx0.556$.\\
+(c) $P(X{=}1,Y{=}2)=0.25$ but $P(X{=}1)P(Y{=}2)=0.55\times0.45=0.2475\ne0.25$. \textbf{Not independent}
+(close, but the product rule fails exactly; equivalently $P(X{=}1\mid Y{=}2)=0.556\neq0.55$).\\
+(d) Row $X{=}0$ sums to $0.45$: $E[Y\mid X{=}0]=\dfrac{0(0.10)+1(0.15)+2(0.20)}{0.45}=\dfrac{0.55}{0.45}=\dfrac{11}{9}\approx1.22$.
+\end{soln}
+
+%---------------- Problem 2
+\subsection*{Problem 2}
+$Y\sim\Bern(1/3)$, $X\mid Y\sim\Bern(1/4+Y/2)$. (a) Write the joint distribution as a $2\times2$ table and check it sums to 1. (b) $P(X{=}1)$. (c) $P(Y{=}1\mid X{=}1)$. (d) $E[X]$ two ways.
+\begin{soln}
+$P(X{=}1\mid Y{=}0)=\frac14$, $P(X{=}1\mid Y{=}1)=\frac34$; $P(Y{=}0)=\frac23$, $P(Y{=}1)=\frac13$.
+\begin{center}
+\begin{tabular}{c|cc|c}
+ & $Y=0$ & $Y=1$ &\\\hline
+$X=0$ & $\frac23\cdot\frac34=\frac12$ & $\frac13\cdot\frac14=\frac1{12}$ & $\frac7{12}$\\
+$X=1$ & $\frac23\cdot\frac14=\frac16$ & $\frac13\cdot\frac34=\frac14$ & $\frac5{12}$\\\hline
+ & $\frac23$ & $\frac13$ & $1$
+\end{tabular}
+\end{center}
+Check: $\frac6{12}+\frac1{12}+\frac2{12}+\frac3{12}=1$. \quad (b) $P(X{=}1)=\frac16+\frac14=\frac5{12}$.\\
+(c) $P(Y{=}1\mid X{=}1)=\dfrac{1/4}{5/12}=\dfrac35$ (Bayes).\\
+(d) From the marginal: $E[X]=P(X{=}1)=\frac5{12}$. Tower: $E[X]=E[E[X\mid Y]]=E[\frac14+\frac Y2]=\frac14+\frac12\cdot\frac13=\frac5{12}$. \checkmark
+\end{soln}
+
+%---------------- Problem 3
+\subsection*{Problem 3}
+$Z=-1$ w.p.\ $0.2$, $0$ w.p.\ $0.5$, $2$ w.p.\ $0.3$. (a) $E[Z]$, $E[Z^2]$. (b) $\operatorname{var}(Z)$ and SD. (c) CV. Why is it so large, and what if every value is shifted up by 10?
+\begin{soln}
+(a) $E[Z]=-0.2+0+0.6=0.4$; $E[Z^2]=0.2(1)+0.5(0)+0.3(4)=1.4$.\\
+(b) $\operatorname{var}(Z)=1.4-0.4^2=1.24$; $\sigma=\sqrt{1.24}\approx1.114$.\\
+(c) $\mathrm{CV}=1.114/0.4\approx2.78$. It is large because the mean ($0.4$) is small compared with the spread. Shifting by 10: mean becomes $10.4$, but the SD is unchanged ($1.114$), so $\mathrm{CV}\approx1.114/10.4\approx0.107$.
+\end{soln}
+
+%---------------- Problem 4
+\subsection*{Problem 4}
+$45\%$ of students are in the morning section ($E[Y\mid\text{morning}]=72$); the rest afternoon ($E[Y\mid\text{afternoon}]=80$). (a) $E[Y]$. (b) If instead $E[Y]=76.4$ and $E[Y\mid\text{morning}]=72$ but the afternoon mean is unknown, can you recover it? (c) One sentence: why isn't $E[Y]$ the average of 72 and 80?
+\begin{soln}
+(a) Tower: $E[Y]=0.45(72)+0.55(80)=32.4+44=76.4$.\\
+(b) Yes (given the $45/55$ split): $76.4=0.45(72)+0.55\,m\Rightarrow m=(76.4-32.4)/0.55=80$.\\
+(c) Because $E[Y]$ weights each group's mean by the fraction of students in it, and the groups are not the same size ($45\%$ vs.\ $55\%$).
+\end{soln}
+
+%---------------- Problem 5
+\subsection*{Problem 5}
+$W\sim\Norm(12,16)$. (a) Standardize. (b) Estimate $P(W>16)$, $P(4<W<20)$. (c) $V=3-2W$. (d) $(W_1+W_2)/2$ for independent copies; how does its spread compare?
+\begin{soln}
+$\sigma=4$. (a) $Z=(W-12)/4\sim\Norm(0,1)$.\\
+(b) $16=\mu+\sigma\Rightarrow P(W>16)\approx16\%$. $4=\mu-2\sigma$, $20=\mu+2\sigma\Rightarrow P(4<W<20)\approx95\%$.\\
+(c) $V\sim\Norm(3-2\cdot12,\ (-2)^2\cdot16)=\Norm(-21,\,64)$.\\
+(d) Mean $12$; variance $\frac14(16+16)=8$, so $\Norm(12,8)$ with SD $4/\sqrt2\approx2.83$. Averaging shrinks the spread by a factor of $\sqrt2$ (variance halves).
+\end{soln}
+
+%---------------- Problem 6
+\subsection*{Problem 6}
+\begin{lstlisting}
+n = 100_000
+y = np.random.choice([0, 1], size=n, p=[0.4, 0.6])
+x = np.empty(n)
+x[y == 0] = np.random.normal(-1, 1, len(y[y == 0]))
+x[y == 1] = np.random.normal(2, 1, len(y[y == 1]))
+print(np.mean(x))
+print(np.mean(x[y == 1]))
+\end{lstlisting}
+(a) Model in $\sim$ notation. (b) First print? (c) Second print? (d) What does \py{np.mean(y[x > 0])} estimate?
+\begin{soln}
+(a) $Y\sim\Bern(0.6)$; $X\mid Y{=}0\sim\Norm(-1,1)$, $X\mid Y{=}1\sim\Norm(2,1)$ (equivalently $X\mid Y\sim\Norm(-1+3Y,\,1)$).\\
+(b) Tower: $E[X]=0.4(-1)+0.6(2)=-0.4+1.2=0.8$.\\
+(c) $E[X\mid Y{=}1]=2$.\\
+(d) $y$ is $0/1$, so this averages $y$ over rows with $x>0$: it estimates $P(Y{=}1\mid X>0)$. (Simulated: $\approx0.90$; not required.)
+\end{soln}
+
+%---------------- Problem 7
+\subsection*{Problem 7}
+$Y\sim\Unif(0,4)$. (a) Density. (b) $P(1<Y<2.5)$ and $P(Y=2)$. (c) $P(Y<1\mid Y<3)$. (d) ``A density can never be bigger than 1.'' Counterexample?
+\begin{soln}
+(a) $f(y)=\frac14$ for $0\le y\le4$, else $0$.\\
+(b) $P(1<Y<2.5)=1.5/4=\frac38$; $P(Y{=}2)=0$ (single point).\\
+(c) $\{Y<1\}\subset\{Y<3\}$, so $P(Y<1\mid Y<3)=\dfrac{1/4}{3/4}=\dfrac13$ (equivalently $\Unif(0,3)$: $1/3$).\\
+(d) $\Unif(0,\frac12)$ has $f(y)=2>1$. Error: $f(y)$ is probability \emph{per unit length}, not a probability; only the area $\int f\,dy$ must be $\le1$ (here $2\times\frac12=1$).
+\end{soln}
+
+%---------------- Problem 8
+\subsection*{Problem 8}
+Randomized trial, $X=1$ treatment, $X=0$ control, $Y\mid X\sim\Norm(\beta_0+\beta_1X,\sigma^2)$; 50 subjects per group; control average $12.4$, treatment average $15.1$.
+(a) $E[Y\mid X{=}0]$, $E[Y\mid X{=}1]$ in terms of $\beta$'s. (b) $\hat\beta_0,\hat\beta_1$. (c) With a fair coin, $E[Y]$ in terms of fitted values. (d) If subjects chose their own group, why is $\hat\beta_1$ hard to interpret?
+\begin{soln}
+(a) $E[Y\mid X{=}0]=\beta_0$, $E[Y\mid X{=}1]=\beta_0+\beta_1$.\\
+(b) $\hat\beta_0=12.4$, $\hat\beta_1=15.1-12.4=2.7$.\\
+(c) Tower with $P(X{=}1)=\frac12$: $E[Y]=\hat\beta_0+\hat\beta_1/2=12.4+1.35=13.75$ (the average of the two group means).\\
+(d) Exogeneity requires $E[\epsilon\mid X]=0$. With self-selection, people who choose treatment may differ in unmeasured ways (motivation, baseline health) that also affect $Y$, so $E[\epsilon\mid X{=}1]\ne E[\epsilon\mid X{=}0]$: $X$ is endogenous, and $\hat\beta_1$ mixes the treatment effect with those group differences.
+\end{soln}
+
+%---------------- Problem 9
+\subsection*{Problem 9}
+$X\sim\Bern(1/2)$, $Y\mid X\sim\Norm(1+3X,\,4)$. Student A: $Y\sim\Norm(2.5,4)$. B: $Y\sim\Norm(2.5,6.25)$. C: $Y$ not Normal, but $E[Y]=2.5$, $\operatorname{var}(Y)=6.25$.
+(a) Compute $E[Y]$, $\operatorname{var}(Y)$; who is right? What do the others get wrong? (b) Now $X\sim\Norm(1/2,1/4)$, same $Y\mid X$: distribution of $Y$, who is right? (c) What does this say?
+\begin{soln}
+(a) Tower: $E[Y]=E[1+3X]=1+3(\frac12)=2.5$. Total variance: $E[\operatorname{var}(Y\mid X)]=4$; $\operatorname{var}(E[Y\mid X])=\operatorname{var}(1+3X)=9\cdot\frac14=2.25$. So $\operatorname{var}(Y)=6.25$.
+$Y$ is a 50/50 mixture of $\Norm(1,4)$ and $\Norm(4,4)$, which is not Normal. \textbf{Student C is correct.}
+A gets the variance wrong (uses only the within-group noise $4$, forgetting the between-group $2.25$) and wrongly claims Normality.
+B has the right mean and variance but wrongly claims Normality (a mixture of Normals with different means is not Normal).\\
+(b) $Y=1+3X+\epsilon$ with $X$ Normal and $\epsilon\sim\Norm(0,4)$ independent of $X$, so $Y$ is a sum of independent Normals: $Y\sim\Norm(1+3\cdot\frac12,\ 9\cdot\frac14+4)=\Norm(2.5,\,6.25)$. \textbf{Student B is correct.}\\
+(c) The mean and variance of $Y$ depend only on the mean and variance of $X$ (both cases: $2.5$, $6.25$), but the \emph{shape} of the distribution of $Y$ (Normal or not) depends on the whole distribution of $X$.
+\end{soln}
+
+%---------------- Problem 10
+\subsection*{Problem 10}
+Hotel housekeepers: treatment told their work meets exercise guidelines; control told nothing; group averages of health measures compared after several weeks.
+(a) Best way to assign? (b) If workers chose their group, why is the difference hard to interpret (use exogeneity)? (c) Even with (a), why could having both groups at the same hotel bias the comparison; give a fix.
+\begin{soln}
+(a) \textbf{Random assignment} (e.g.\ a coin flip per worker). It makes group membership independent of every other characteristic (fitness, motivation, age), so $E[\epsilon\mid X]=0$: $X$ is exogenous and the difference in group means estimates the effect of the message.\\
+(b) With self-selection, traits that drive both the choice of group and the health outcome (health-consciousness, existing fitness) end up in $\epsilon$ and are correlated with $X$: $E[\epsilon\mid X]\ne0$. The difference then mixes the message's effect with those pre-existing differences.\\
+(c) \emph{Contamination / spillover}: coworkers talk, so control workers may hear the message (or treated workers may hear that controls were told nothing), which shrinks or distorts the difference. Fix: randomize at the level of the hotel (whole hotels are either treated or control, with several hotels in each arm), or otherwise keep the groups from interacting.
+\end{soln}
+
+%---------------- Problem 11
+\subsection*{Problem 11}
+\begin{lstlisting}
+n = 100000
+x = np.random.choice([0, 1], size=n)
+y = np.random.normal(3 + 4 * x, 2, n)
+result = np.mean(y[x == 1]) - np.mean(y[x == 0])
+print(result)
+\end{lstlisting}
+(a) Model with $\beta_0,\beta_1,\sigma^2$. (b) What does \py{result} estimate? (c) Another way to compute it with \py{np.cov}.
+\begin{soln}
+(a) $Y\mid X\sim\Norm(3+4X,\,4)$: $\beta_0=3$, $\beta_1=4$, $\sigma^2=2^2=4$ (the code passes the SD $2$).\\
+(b) $E[Y\mid X{=}1]-E[Y\mid X{=}0]=\beta_1=4$ (result $\approx4$).\\
+(c) \py{np.cov(x, y)[0, 1] / np.cov(x, y)[0, 0]}: sample $\Cov(X,Y)/\Var(X)=\beta_1$ (since $\Cov=\beta_1\sigma_X^2$).
+\end{soln}
+
+%---------------- Problem 12
+\subsection*{Problem 12}
+$X\sim\Norm(\mu_X,4)$, $Y\mid X\sim\Norm(3X,\,64)$. Compute $\operatorname{cov}(X,Y)$ and $\operatorname{var}(Y)$.
+\begin{soln}
+$\beta_1=3$, $\beta_0=0$, $\sigma_X^2=4$, $\sigma_\epsilon^2=64$.
+$\operatorname{cov}(X,Y)=\beta_1\sigma_X^2=3\cdot4=12$. $\operatorname{var}(Y)=\beta_1^2\sigma_X^2+\sigma_\epsilon^2=9\cdot4+64=100$. ($\mu_X$ does not matter.)
+\end{soln}
+
+%---------------- Problem 13
+\subsection*{Problem 13}
+$X\sim\Bern(1/2)$, $Y\mid X\sim\Unif(X,2)$. Compute $E[Y]$ and write Python to sample from the model.
+\begin{soln}
+$E[Y\mid X{=}0]=\frac{0+2}2=1$, $E[Y\mid X{=}1]=\frac{1+2}2=1.5$. Tower: $E[Y]=\frac12(1)+\frac12(1.5)=1.25$.
+\begin{lstlisting}
+n = 100000
+x = np.random.choice([0, 1], size=n)               # X ~ Bernoulli(1/2)
+y = np.empty(n)
+y[x == 0] = np.random.uniform(0, 2, len(y[x == 0]))  # Y | X=0 ~ Uniform(0,2)
+y[x == 1] = np.random.uniform(1, 2, len(y[x == 1]))  # Y | X=1 ~ Uniform(1,2)
+print(np.mean(y))   # about 1.25
+\end{lstlisting}
+(Equivalently, \py{y = np.random.uniform(x, 2, n)}, passing the array $x$ as the lower endpoint, just as Problem 11 passes an array mean to \py{np.random.normal}.)
+\end{soln}
+
+%---------------- Problem 14
+\subsection*{Problem 14}
+\begin{lstlisting}
+n = 100_000
+x = np.random.choice([0, 1], size=n, p=[0.3, 0.7])
+y = np.empty(n)
+y[x == 0] = np.random.uniform(0, 2, len(y[x == 0]))
+y[x == 1] = np.random.uniform(1, 4, len(y[x == 1]))
+z = np.empty(n)
+z[x == 0] = np.random.uniform(-1, 1, len(z[x == 0]))
+z[x == 1] = np.random.uniform(0, 6, len(z[x == 1]))
+print(np.mean(z))
+\end{lstlisting}
+(a) Model for $(X,Y,Z)$. (b) Are $Y$ and $Z$ independent? (c) What does \py{np.mean(z)} print?
+\begin{soln}
+(a) $X\sim\Bern(0.7)$; $Y\mid X{=}0\sim\Unif(0,2)$, $Y\mid X{=}1\sim\Unif(1,4)$; $Z\mid X{=}0\sim\Unif(-1,1)$, $Z\mid X{=}1\sim\Unif(0,6)$; and given $X$, $Y$ and $Z$ are drawn independently.\\
+(b) \textbf{Not independent} (they are independent \emph{given} $X$, but both depend on $X$). Concrete check: if $Y>2$ then we must have $X=1$ (since $Y\le2$ when $X=0$), and then $Z\in[0,6]$, so $P(Z<0\mid Y>2)=0$. But $P(Z<0)=P(X{=}0)\cdot P(Z<0\mid X{=}0)=0.3\times0.5=0.15\ne0$. Since $P(Z<0\mid Y>2)\ne P(Z<0)$, they're dependent.\\
+(c) Tower: $E[Z]=0.3\cdot E[Z\mid X{=}0]+0.7\cdot E[Z\mid X{=}1]=0.3(0)+0.7(3)=2.1$.
+\end{soln}
+
+%---------------- Problem 15
+\subsection*{Problem 15}
+\begin{lstlisting}
+n = 100000
+x = np.random.uniform(0, 4, n)
+y = np.random.normal(2 * x + 1, np.sqrt(3), n)
+print(np.var(y))
+\end{lstlisting}
+(a) Model in $\sim$ notation. (b) What does \py{np.var(y)} show?
+\begin{soln}
+(a) $X\sim\Unif(0,4)$, $Y\mid X\sim\Norm(1+2X,\,3)$ (the SD is $\sqrt3$, so variance $3$): $\beta_0=1$, $\beta_1=2$, $\sigma_\epsilon^2=3$.\\
+(b) $\operatorname{var}(Y)=\beta_1^2\sigma_X^2+\sigma_\epsilon^2$ with $\sigma_X^2=\frac{(4-0)^2}{12}=\frac43$ (Uniform variance $\frac{(b-a)^2}{12}$ is on the memorize list in the notes). So $\operatorname{var}(Y)=4\cdot\frac43+3=\frac{16}3+3=\frac{25}3\approx8.33$.
+\end{soln}
+
+%---------------- Problem 16
+\subsection*{Problem 16}
+$X\sim\Bern(1/3)$, $Y\mid X\sim\Unif(0,1+X)$. (a) $E[Y\mid X{=}0]$, $E[Y\mid X{=}1]$, $E[Y]$. (b) $E[XY]$. (c) $\operatorname{cov}(X,Y)$.
+\begin{soln}
+(a) $E[Y\mid X{=}0]=\frac12$, $E[Y\mid X{=}1]=1$. So $E[Y\mid X]=\frac{1+X}2$ and $E[Y]=\frac23\cdot\frac12+\frac13\cdot1=\frac23$.\\
+(b) $E[XY]=E[X\,E[Y\mid X]]=E\big[\tfrac{X+X^2}2\big]=\tfrac{E[X]+E[X]}2=\tfrac13$ (since $X^2=X$). Or directly: only $X{=}1$ contributes: $\frac13\cdot E[Y\mid X{=}1]=\frac13$.\\
+(c) $\operatorname{cov}(X,Y)=E[XY]-E[X]E[Y]=\frac13-\frac13\cdot\frac23=\frac13-\frac29=\frac19$.
+\end{soln}
+
+%---------------- Problem 17
+\subsection*{Problem 17}
+Law of total variance: $\operatorname{var}(Y)=E[\operatorname{var}(Y\mid X)]+\operatorname{var}(E[Y\mid X])$. (a) Derive it. (Hint: start from $\operatorname{var}(Y)=E[Y^2]-E[Y]^2$.) (b) Use it for $\operatorname{var}(Y)$ when $X\sim\Bern(1/3)$, $Y\mid X\sim\Unif(0,1+X)$.
+
+\emph{(The prompt says ``law of total covariance'' but states the variance formula and gives the variance hint, so I derive the variance version; the covariance version is a remark at the end.)}
+\begin{soln}
+(a) Apply the tower property to each term. $E[Y^2]=E\big[E[Y^2\mid X]\big]$, and for each $x$, $E[Y^2\mid X{=}x]=\operatorname{var}(Y\mid X{=}x)+E[Y\mid X{=}x]^2$ (the variance formula applied to the conditional distribution). So
+\[
+E[Y^2]=E[\operatorname{var}(Y\mid X)]+E\big[E[Y\mid X]^2\big],\qquad E[Y]^2=\big(E[E[Y\mid X]]\big)^2.
+\]
+Subtract:
+\[
+\operatorname{var}(Y)=E[\operatorname{var}(Y\mid X)]+\Big(E\big[E[Y\mid X]^2\big]-\big(E[E[Y\mid X]]\big)^2\Big)=E[\operatorname{var}(Y\mid X)]+\operatorname{var}(E[Y\mid X]).
+\]
+The bracket is $E[W^2]-E[W]^2=\operatorname{var}(W)$ for $W=E[Y\mid X]$. \checkmark\\[3pt]
+(b) $\operatorname{var}(Y\mid X{=}0)=\frac{1^2}{12}=\frac1{12}$, $\operatorname{var}(Y\mid X{=}1)=\frac{2^2}{12}=\frac13$. Within: $E[\operatorname{var}(Y\mid X)]=\frac23\cdot\frac1{12}+\frac13\cdot\frac13=\frac1{18}+\frac19=\frac16$.
+Between: $E[Y\mid X]=\frac{1+X}2$, so $\operatorname{var}(E[Y\mid X])=\frac14\operatorname{var}(X)=\frac14\cdot\frac13\cdot\frac23=\frac1{18}$.
+Total: $\operatorname{var}(Y)=\frac16+\frac1{18}=\frac{4}{18}=\frac29$.\\[3pt]
+\emph{Remark (covariance version):} the same steps starting from $\operatorname{cov}(X,Y)=E[XY]-E[X]E[Y]$ give
+$\operatorname{cov}(X,Y)=E[\operatorname{cov}(X,Y\mid Z)]+\operatorname{cov}(E[X\mid Z],E[Y\mid Z])$.
+\end{soln}
+
+%---------------- Problem 18
+\subsection*{Problem 18}
+$Z_X=(X-\mu_X)/\sigma_X$, $Z_Y=(Y-\mu_Y)/\sigma_Y$. $\rho$ is defined by $E[Z_Y\mid Z_X]=\rho Z_X$. Suppose $Y\mid X\sim\Norm(\beta_0+\beta_1X,\sigma_\epsilon^2)$. (a) Derive $\rho=\beta_1\sigma_X/\sigma_Y$. (b) Using $\operatorname{cov}(X,Y)=\beta_1\sigma_X^2$, show $\rho=\operatorname{cov}(X,Y)/(\sigma_X\sigma_Y)$. (c) Show the noise variance in the regression of $Z_Y$ on $Z_X$ is $1-\rho^2$ and conclude $-1\le\rho\le1$.
+\begin{soln}
+(a) $Y=\beta_0+\beta_1X+\epsilon$ and $\mu_Y=\beta_0+\beta_1\mu_X$, so $Y-\mu_Y=\beta_1(X-\mu_X)+\epsilon$. Divide by $\sigma_Y$:
+\[
+Z_Y=\frac{\beta_1(X-\mu_X)}{\sigma_Y}+\frac\epsilon{\sigma_Y}=\frac{\beta_1\sigma_X}{\sigma_Y}Z_X+\frac{\epsilon}{\sigma_Y}.
+\]
+Since $E[\epsilon\mid X]=0$ (hence $E[\epsilon\mid Z_X]=0$), $E[Z_Y\mid Z_X]=\frac{\beta_1\sigma_X}{\sigma_Y}Z_X$, so $\rho=\beta_1\sigma_X/\sigma_Y$.\\
+(b) $\beta_1=\operatorname{cov}(X,Y)/\sigma_X^2$, so $\rho=\dfrac{\operatorname{cov}(X,Y)}{\sigma_X^2}\cdot\dfrac{\sigma_X}{\sigma_Y}=\dfrac{\operatorname{cov}(X,Y)}{\sigma_X\sigma_Y}$.\\
+(c) From (a), the noise term is $\epsilon/\sigma_Y$, with variance $\sigma_\epsilon^2/\sigma_Y^2$. Since $\sigma_Y^2=\beta_1^2\sigma_X^2+\sigma_\epsilon^2$,
+\[
+\frac{\sigma_\epsilon^2}{\sigma_Y^2}=1-\frac{\beta_1^2\sigma_X^2}{\sigma_Y^2}=1-\rho^2.
+\]
+A variance is $\ge0$, so $1-\rho^2\ge0$, i.e.\ $\rho^2\le1$ and $-1\le\rho\le1$.
+\end{soln}
+
+%---------------- Problem 19
+\subsection*{Problem 19}
+(a) Does $\operatorname{cov}(X,Y)=0$ mean $X,Y$ independent? (b) What motivates the coefficient of variation given that we have the SD? (c) Why define linear regression \emph{models} before regression on \emph{data}?
+\begin{soln}
+(a) \textbf{No.} Independence implies $\operatorname{cov}=0$ (since $E[XY]=E[X]E[Y]$), but not conversely. Example (from the notes): $Y=\pm1$ w.p.\ $\frac12$ each; given $Y=1$, $X=\pm1$ w.p.\ $\frac12$; given $Y=-1$, $X=\pm2$ w.p.\ $\frac12$. Then $E[X\mid Y]=0$ for both $y$, so $E[X]=0$ and $E[XY]=E[Y\,E[X\mid Y]]=0$, giving $\operatorname{cov}(X,Y)=0$. But $P(X{=}1\mid Y{=}1)=\frac12$ while $P(X{=}1\mid Y{=}-1)=0$, so they are dependent.\\
+(b) The SD has the units of $Y$, so it can't be compared across variables with different units or scales (an SD of $10$ cm on a $170$ cm height is small; an SD of $10$ kg on a $70$ kg weight is not). $\mathrm{CV}=\sigma/\mu$ is unitless and measures spread \emph{relative} to the mean.\\
+(c) The model is a probability statement about how $Y$ is generated given $X$ ($\beta_0,\beta_1,\sigma^2$ are unknown population quantities). It defines what we're trying to learn; fitting a line to data is then a way to \emph{estimate} those parameters (e.g.\ $\hat\beta_1=\widehat{\operatorname{cov}}/\widehat{\operatorname{var}}$). Without the model we'd have a line but no meaning for what it estimates, nor a way to say how accurate it is.
+\end{soln}
+
+%---------------- Problem 20
+\subsection*{Problem 20}
+300 samples from $Y\mid X\sim\Norm(\beta_0+\beta_1X,\sigma_\epsilon^2)$, $X\in\{0,1\}$, half at each $x$ (jittered). \emph{Plot: the $x{=}0$ cloud is centered near $y\approx5$ (roughly 3 to 7.5); the $x{=}1$ cloud is centered near $y\approx2$ (roughly 0 to 4).}
+(a) Estimate $E[Y\mid X{=}0]$, $E[Y\mid X{=}1]$, $\beta_0$, $\beta_1$. (b) Estimate $\sigma_\epsilon$. (c) Compute $\operatorname{cov}(X,Y)$ and $\operatorname{var}(Y)$. (d) Relabel $X'=1-X$: $\beta_0'$, $\beta_1'$, $\operatorname{cov}(X',Y)$, $\operatorname{var}(Y)$.
+\begin{soln}
+(a) $E[Y\mid X{=}0]\approx5$, $E[Y\mid X{=}1]\approx2$. So $\beta_0\approx5$ and $\beta_1\approx2-5=-3$.\\
+(b) Most points lie within about $\pm2$ of each group's center, and $\approx95\%$ of a Normal lies within $2\sigma$, so $\sigma_\epsilon\approx1$.\\
+(c) $X\sim\Bern(\frac12)$ so $\sigma_X^2=\frac14$: $\operatorname{cov}(X,Y)=\beta_1\sigma_X^2\approx-3\cdot\frac14=-0.75$. $\operatorname{var}(Y)=\beta_1^2\sigma_X^2+\sigma_\epsilon^2\approx9\cdot\frac14+1=3.25$.\\
+(d) $X'=1-X$ swaps the groups: $E[Y\mid X'{=}0]=E[Y\mid X{=}1]\approx2\Rightarrow\beta_0'\approx2$; $\beta_1'=5-2=+3$ (so $\beta_1'=-\beta_1$, $\beta_0'=\beta_0+\beta_1$). $\sigma_{X'}^2=\frac14$, so $\operatorname{cov}(X',Y)\approx+0.75$ (sign flips). $\operatorname{var}(Y)\approx3.25$ is unchanged (it's a property of $Y$; relabeling $X$ doesn't change it).
+\end{soln}
+
+%---------------- Problem 21
+\subsection*{Problem 21}
+Four scatter plots (200 points each, $x\in[0,4]$). \emph{Description of the plots: (a) an upward linear trend with vertical spread that grows with $x$; (b) a tight upward line; (c) a curved (convex, accelerating) upward trend; (d) an upward line with a few large positive outliers, i.e.\ right-skewed noise.}
+(a) For each, could it come from a linear regression model? If not, which assumption fails? (b) For one that could, estimate $\beta_0,\beta_1,\sigma_\epsilon$ and the sign of $\operatorname{cov}(X,Y)$. (c) Can exogeneity be checked from a scatter plot alone?
+\begin{soln}
+(a) Plot (a): mean looks linear but the spread fans out with $x$, so \textbf{homoskedasticity} fails. Plot (b): plausible. Plot (c): the mean curves, so \textbf{linearity} fails. Plot (d): mean is roughly linear but the residuals are heavily right-skewed with large positive outliers, so \textbf{conditional normality} fails.\\
+(b) Plot (b) is plausible. Reading the plot: the line passes near $y\approx1$ at $x=0$ and $y\approx9$ at $x=4$, so $\beta_0\approx1$ and $\beta_1\approx(9-1)/4=2$; most points within $\pm2$ of the line, so $\sigma_\epsilon\approx1$. The trend is upward, so $\operatorname{cov}(X,Y)=\beta_1\sigma_X^2>0$. (Any estimates near these are fine.)\\
+(c) No. Exogeneity is $E[\epsilon\mid X]=0$, a statement about unobserved factors in the error. A scatter of observed $(x,y)$ shows only $E[Y\mid X]$; a confounder that moves with $x$ would just look like part of a (steeper or shallower) line, so an endogenous $X$ can produce a plot indistinguishable from an exogenous one. It is justified by how $X$ was assigned (randomization), not by the picture.
+\end{soln}
+
+
+\end{document}

@@ -1,0 +1,434 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs,enumitem,xcolor,fancyhdr}
+\usepackage[most]{tcolorbox}
+\usepackage{listings}
+
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{codebg}{HTML}{F5F5F5}
+\definecolor{tipbg}{HTML}{FFF6DD}
+
+\lstset{
+  language=Python, basicstyle=\ttfamily\small, backgroundcolor=\color{codebg},
+  keywordstyle=\color{accent}\bfseries, commentstyle=\color{gray}\itshape,
+  frame=single, rulecolor=\color{gray!40}, columns=fullflexible,
+  keepspaces=true, showstringspaces=false, aboveskip=6pt, belowskip=6pt
+}
+
+\newtcolorbox{keybox}[1][]{colback=accent!6, colframe=accent, boxrule=0.6pt,
+  arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt, fonttitle=\bfseries, #1}
+\newtcolorbox{tipbox}[1][]{colback=tipbg, colframe=orange!70!black, boxrule=0.6pt,
+  arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt, fonttitle=\bfseries, #1}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{var}}
+\newcommand{\Cov}{\operatorname{cov}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\given}{\mid}
+\newcommand{\Bern}{\text{Bernoulli}}
+\newcommand{\Unif}{\text{Uniform}}
+\newcommand{\Norm}{\text{Normal}}
+\newcommand{\py}[1]{\texttt{#1}}
+
+\newenvironment{soln}{\par\smallskip\noindent\textbf{Solution.}\ }{\par\medskip}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\emergencystretch=3em
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Math 50 -- Midterm 1 drill answers}
+\rhead{Units 1--2}
+\cfoot{\thepage}
+
+\title{\textbf{Math 50 Midterm 1: Drill Answer Key}\\[2pt]\large Worked solutions to the Drills in Unit 1 and Unit 2}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+\begin{tipbox}[title={Read this first}]
+Try each drill yourself before reading the solution. The drill numbers and wording follow the \emph{current} course website
+(Unit 1 has Drills 1--22). Your saved PDF of the Unit 1 notes is an older snapshot with 17 drills, so its numbers differ and it lacks some drills
+(e.g.\ ``Getting caught skipping class'', ``Reverse-engineering a joint distribution'', ``Mixing a Bernoulli and a Uniform'').
+Unit 2 drills have titles instead of numbers. The end-of-unit ``Problems'' (data/plotting tasks) are not included here.
+Every number was checked by exact arithmetic or simulation.
+\end{tipbox}
+
+%==========================================================
+\section{Unit 1 drills}
+%==========================================================
+
+\subsection*{Drill 1 --- Sample spaces and events}
+For each situation, identify the random variable(s), the sample space, and give example events.
+\begin{soln}
+\begin{enumerate}[label=(\alph*),leftmargin=*,itemsep=2pt]
+  \item $R$ = the student's answer. $S_R=\{\text{YES},\text{NO}\}$ (or $\{1,0\}$). Events: $\{\text{YES}\}$, $\{\text{NO}\}$, and the whole space.
+  \item $N$ = the number of rolls needed to get the first $6$. $S_N=\{1,2,3,\dots\}$ (infinite, since a $6$ could take arbitrarily long). Events: $\{N=1\}$, $\{N\le3\}$, $\{N\text{ is even}\}$.
+  \item $(H,G)$ = height and gender. $S=[0,\infty)\times\{\text{M},\text{F}\}$ (height is continuous; we could restrict to a plausible range like $[0,250]$ cm). Events: $\{G=\text{F}\}$, $\{H>180\}$, $\{H>170,\,G=\text{M}\}$.
+\end{enumerate}
+\end{soln}
+
+\subsection*{Drill 2 --- Probabilities from a tree diagram}
+Two independent people, each supports a ballot measure with probability $0.6$.
+\begin{soln}
+Tree: first person supports ($0.6$) or not ($0.4$); from each branch, second person supports ($0.6$) or not ($0.4$). Leaves (multiply along branches), writing (person 1, person 2):
+\[
+(1,1):\ 0.6\cdot0.6=0.36,\quad (1,0):\ 0.6\cdot0.4=0.24,\quad (0,1):\ 0.4\cdot0.6=0.24,\quad (0,0):\ 0.4\cdot0.4=0.16.
+\]
+These sum to $1$. \textbf{(b)} Both: $0.36$. \textbf{(c)} Exactly one: $(1,0)$ or $(0,1)$: $0.24+0.24=0.48$.
+\textbf{(d)} At least one $=1-\P(\text{neither})=1-0.16=0.84$ (equivalently $0.36+0.48$).
+\end{soln}
+
+\subsection*{Drill 3 --- Sample spaces of compound random variables}
+\begin{soln}
+\textbf{(a)} Heads: die $+1$ gives $\{2,\dots,7\}$; tails: die $+4$ gives $\{5,\dots,10\}$. So $S_Y=\{2,3,\dots,10\}$.\\
+\textbf{(b)} Red $\to$ $Y\in\{0,1\}$; green/blue $\to$ $Y\in\{1,2,3,4\}$. So $S_Y=\{0,1,2,3,4\}$.\\
+\textbf{(c)} Odd values give $1,3,5$; even values give $2\cdot\{2,4,6\}=4,8,12$. So $S_Y=\{1,3,4,5,8,12\}$.\\
+\textbf{(d)} No. Values $2,3,4$ (heads, die $1,2,3$) and $8,9,10$ (tails, die $4,5,6$) each arise one way, but $5,6,7$ arise two ways. For example $Y=5$ comes from (heads, die $4$) and from (tails, die $1$).
+\end{soln}
+
+\subsection*{Drill 4 --- Getting caught skipping class}
+$N=35$ students, $5$ checked uniformly at random each day; you skip half of all classes independently; $M=27$ meetings.
+\begin{soln}
+\textbf{(a)} $\P(\text{checked})=\dfrac5{35}=\dfrac17$.\\
+\textbf{(b)} Checked and absent are independent, so $\P(X)=\dfrac17\cdot\dfrac12=\dfrac1{14}\approx0.0714$.\\
+\textbf{(c)} Not caught on a given day has probability $1-\frac1{14}=\frac{13}{14}$; over $27$ independent days, $\P(\text{never caught})=\left(\dfrac{13}{14}\right)^{27}\approx0.135$.\\
+\textbf{(d)} $\P(\text{caught at least once})=1-\left(\dfrac{13}{14}\right)^{27}\approx0.865$.
+\end{soln}
+
+\subsection*{Drill 5 --- Conditional probability from a joint table}
+\begin{center}
+\begin{tabular}{c|cc}
+$\P(A,B)$ & $B=0$ & $B=1$\\\hline
+$A=0$ & 0.1 & 0.3\\
+$A=1$ & 0.2 & 0.4
+\end{tabular}
+\end{center}
+\begin{soln}
+(a) $\P(A{=}1)=0.2+0.4=0.6$. \quad (b) $\P(B{=}1)=0.3+0.4=0.7$.\\
+(c) $\P(A{=}1\mid B{=}1)=\dfrac{0.4}{0.7}=\dfrac47\approx0.571$. \quad (d) $\P(B{=}0\mid A{=}0)=\dfrac{0.1}{0.1+0.3}=\dfrac14$.
+\end{soln}
+
+\subsection*{Drill 6 --- Marginalization from a joint distribution}
+$\P(0,0)=0.2$, $\P(0,1)=0.2$, $\P(1,0)=0.1$, $\P(1,1)=0.5$ for $(X,Y)$.
+\begin{soln}
+(a) $P_X(0)=0.2+0.2=0.4$, $P_X(1)=0.1+0.5=0.6$.\\
+(b) $P_Y(0)=0.2+0.1=0.3$, $P_Y(1)=0.2+0.5=0.7$.\\
+(c) $\P(Y{=}1\mid X{=}0)=\dfrac{0.2}{0.4}=0.5$. \quad (d) $\P(X{=}1\mid Y{=}0)=\dfrac{0.1}{0.3}=\dfrac13$.
+\end{soln}
+
+\subsection*{Drill 7 --- Conditional probability from a piecewise model}
+$P_Z(0)=0.2$, $P_Z(1)=0.5$, $P_Z(2)=0.3$; $W\mid Z\sim\Bern(Z/4+1/4)$.
+\begin{soln}
+The success probability is $\P(W{=}1\mid Z{=}z)=\frac z4+\frac14$: $\frac14$ for $z=0$, $\frac12$ for $z=1$, $\frac34$ for $z=2$.\\
+(a) $\P(W{=}1\mid Z{=}2)=\frac34$.\\
+(b) Marginalize: $\P(W{=}1)=0.2\cdot\frac14+0.5\cdot\frac12+0.3\cdot\frac34=0.05+0.25+0.225=0.525$.\\
+(c) Bayes: $\P(Z{=}1\mid W{=}1)=\dfrac{\P(W{=}1\mid Z{=}1)\P(Z{=}1)}{\P(W{=}1)}=\dfrac{0.5\cdot0.5}{0.525}=\dfrac{0.25}{0.525}=\dfrac{10}{21}\approx0.476$.
+\end{soln}
+
+\subsection*{Drill 8 --- Marginalization and conditioning with three variables}
+Table from the worked example:
+\begin{center}
+\begin{tabular}{@{}c|cccccccc@{}}
+$(a,b,c)$ & 000 & 001 & 010 & 011 & 100 & 101 & 110 & 111\\\hline
+$p(a,b,c)$ & 0.1 & 0.2 & 0.1 & 0.1 & 0.1 & 0.1 & 0.1 & 0.2
+\end{tabular}
+\end{center}
+\begin{soln}
+(a) $\P(A{=}1)=p(100)+p(101)+p(110)+p(111)=0.1+0.1+0.1+0.2=0.5$.\\
+(b) $\P(B{=}1\mid A{=}0)=\dfrac{p(010)+p(011)}{\P(A{=}0)}=\dfrac{0.1+0.1}{0.5}=0.4$.\\
+(c) $\P(C{=}1\mid A{=}1,B{=}1)=\dfrac{p(111)}{p(110)+p(111)}=\dfrac{0.2}{0.1+0.2}=\dfrac23$.\\
+(d) $\P(B{=}0)=p(000)+p(001)+p(100)+p(101)=0.1+0.2+0.1+0.1=0.5$.
+\end{soln}
+
+\subsection*{Drill 9 --- Independence from a model}
+$Y_B\sim\Bern(2/3)$, $Y_A\mid(Y_B{=}0)\sim\Bern(1/3)$, $Y_A\mid(Y_B{=}1)\sim\Bern(1/2)$.
+\begin{soln}
+\textbf{(a)} Use $\P(y_A,y_B)=\P(y_A\mid y_B)\P(y_B)$ with $\P(Y_B{=}0)=\frac13$, $\P(Y_B{=}1)=\frac23$:
+\begin{center}
+\begin{tabular}{c|cc|c}
+$\P(Y_A,Y_B)$ & $Y_B=0$ & $Y_B=1$ &\\\hline
+$Y_A=0$ & $\frac13\cdot\frac23=\frac29$ & $\frac23\cdot\frac12=\frac13$ & $\frac59$\\
+$Y_A=1$ & $\frac13\cdot\frac13=\frac19$ & $\frac23\cdot\frac12=\frac13$ & $\frac49$\\\hline
+ & $\frac13$ & $\frac23$ & $1$
+\end{tabular}
+\end{center}
+(Check: $\frac29+\frac13+\frac19+\frac13=\frac{2+3+1+3}9=1$.)\\
+\textbf{(b)} $Y_B\sim\Bern(2/3)$ (given). $Y_A\sim\Bern(4/9)$: $\P(Y_A{=}1)=\frac19+\frac13=\frac49$.\\
+\textbf{(c)} Not independent. Conditionals differ: $\P(Y_A{=}1\mid Y_B{=}0)=\frac13\ne\frac12=\P(Y_A{=}1\mid Y_B{=}1)$. Product rule: $\P(Y_A{=}1,Y_B{=}1)=\frac13$ but $\P(Y_A{=}1)\P(Y_B{=}1)=\frac49\cdot\frac23=\frac8{27}\ne\frac9{27}$.
+\end{soln}
+
+\subsection*{Drill 10 --- Reverse-engineering a joint distribution}
+$X,Y\in\{0,1,2\}$ independent, $P_X=(0.2,0.5,0.3)$, $P_Y=(0.4,0.4,0.2)$.
+\begin{soln}
+\textbf{(a)} Independence means $\P(x,y)=P_X(x)P_Y(y)$:
+\begin{center}
+\begin{tabular}{c|ccc|c}
+ & $Y=0$ & $Y=1$ & $Y=2$ &\\\hline
+$X=0$ & 0.08 & 0.08 & 0.04 & 0.2\\
+$X=1$ & 0.20 & 0.20 & 0.10 & 0.5\\
+$X=2$ & 0.12 & 0.12 & 0.06 & 0.3\\\hline
+ & 0.4 & 0.4 & 0.2 & 1
+\end{tabular}
+\end{center}
+\textbf{(b)} Add $0.05$ to $(0,0)$ and $(1,1)$; subtract $0.05$ from $(0,1)$ and $(1,0)$:
+\begin{center}
+\begin{tabular}{c|ccc|c}
+ & $Y=0$ & $Y=1$ & $Y=2$ &\\\hline
+$X=0$ & 0.13 & 0.03 & 0.04 & 0.2\\
+$X=1$ & 0.15 & 0.25 & 0.10 & 0.5\\
+$X=2$ & 0.12 & 0.12 & 0.06 & 0.3\\\hline
+ & 0.4 & 0.4 & 0.2 & 1
+\end{tabular}
+\end{center}
+Rows: $0.13+0.03+0.04=0.2$, $0.15+0.25+0.10=0.5$, $0.3$ unchanged. Columns: $0.13+0.15+0.12=0.4$, $0.03+0.25+0.12=0.4$, $0.2$ unchanged. Both marginals are unchanged, because each row and column lost exactly as much as it gained.\\
+\textbf{(c)} Not independent: $\P(X{=}0,Y{=}0)=0.13$ but $P_X(0)P_Y(0)=0.2\cdot0.4=0.08$.\\
+\textbf{(d)} Two different joint distributions (one independent, one not) have exactly the same marginals, so the marginals do not determine the joint distribution: dependence lives in the joint table and is invisible in the marginals.
+\end{soln}
+
+\subsection*{Drill 11 --- Reading simulation code}
+\begin{lstlisting}
+p = 0.3
+samples = np.random.choice([0, 1], p=[1 - p, p], size=1000)
+estimate = np.mean(samples)
+\end{lstlisting}
+\begin{soln}
+(a) $1000$ iid draws from $\Bern(0.3)$ (each draw is $1$ with probability $0.3$, else $0$).\\
+(b) The sample space of each draw is $\{0,1\}$.\\
+(c) \py{estimate} is the fraction of ones, so it approximates $\P(X{=}1)=0.3$ (equivalently $\E[X]=0.3$).\\
+(d) No. The draws are random, so each run gives a slightly different value; the typical deviation from $0.3$ is about $\sqrt{0.3\cdot0.7/1000}\approx0.015$.
+\end{soln}
+
+\subsection*{Drill 12 --- Translating code into a joint model}
+\begin{lstlisting}
+y = np.random.choice([0, 1], p=[0.4, 0.6])
+if y == 0:
+    x = np.random.choice([0, 1], p=[0.8, 0.2])
+else:
+    x = np.random.choice([0, 1], p=[0.3, 0.7])
+\end{lstlisting}
+\begin{soln}
+(a) $Y\sim\Bern(0.6)$, $X\mid Y\sim\Bern(0.2+0.5Y)$ (i.e.\ $0.2$ if $Y=0$, $0.7$ if $Y=1$).\\
+(b) $\P(X{=}1,Y{=}0)=\P(X{=}1\mid Y{=}0)\P(Y{=}0)=0.2\cdot0.4=0.08$; $\P(X{=}1,Y{=}1)=0.7\cdot0.6=0.42$.\\
+(c) $\P(X{=}1)=0.08+0.42=0.50$.\\
+(d) Not independent: $\P(X{=}1\mid Y{=}0)=0.2\ne0.7=\P(X{=}1\mid Y{=}1)$.
+\end{soln}
+
+\subsection*{Drill 13 --- Describing a simulation plan}
+Check the probabilities from Drill 9 by simulation.
+\begin{soln}
+(a) Each simulated row contains a pair $(Y_B,Y_A)$: first draw $Y_B\sim\Bern(2/3)$, then draw $Y_A$ from $\Bern(1/3)$ if $Y_B=0$ and $\Bern(1/2)$ if $Y_B=1$.
+\begin{lstlisting}
+n = 100000
+yb = np.random.choice([0, 1], size=n, p=[1/3, 2/3])
+ya = np.empty(n, dtype=int)
+ya[yb == 0] = np.random.choice([0, 1], size=len(ya[yb == 0]), p=[2/3, 1/3])
+ya[yb == 1] = np.random.choice([0, 1], size=len(ya[yb == 1]), p=[1/2, 1/2])
+\end{lstlisting}
+(b) Marginal: the fraction of rows satisfying the event, e.g.\ \py{np.mean(ya == 1)} for $\P(Y_A{=}1)$.\\
+(c) Conditional: restrict to the rows satisfying the condition, then take the fraction, e.g.\ \py{np.mean(ya[yb == 0] == 1)} for $\P(Y_A{=}1\mid Y_B{=}0)$.\\
+(d) Compare the estimates with the exact values ($\P(Y_A{=}1)=\frac49\approx0.444$, $\P(Y_A{=}1\mid Y_B{=}0)=\frac13$, $\P(Y_A{=}1\mid Y_B{=}1)=\frac12$, $\P(Y_A{=}1,Y_B{=}1)=\frac13$). They should agree up to sampling error of roughly $1/\sqrt n$; a larger $n$ shrinks the gap. (Ran it with $n=2$ million: $0.444$, $0.333$, $0.500$, $0.333$.)
+\end{soln}
+
+\subsection*{Drill 14 --- Reading NumPy array code}
+\py{x = np.array([4, 7, 7, 1, 3])}
+\begin{soln}
+(a) \py{x[2]} $=7$ (indexing starts at $0$: $x[0]=4$, $x[1]=7$, $x[2]=7$).\\
+(b) \py{x[x >= 5]} $=$ \py{array([7, 7])} (the entries that are at least $5$).\\
+(c) \py{np.mean(x == 7)}: the boolean array is \py{[F, T, T, F, F]}, mean $=2/5=0.4$.\\
+(d) \py{len(x[x > 3])}: entries greater than $3$ are $4,7,7$, so the length is $3$.
+\end{soln}
+
+\subsection*{Drill 15 --- Marginal, joint, conditional probability from arrays}
+\begin{soln}
+(a) \py{np.mean(x == 1)}\\
+(b) \py{np.mean((x == 1) \& (y == 0))}\\
+(c) \py{np.mean(y[x == 1] == 0)} (restrict to rows with $x=1$, then take the fraction with $y=0$).\\
+(d) $\P(Y{=}0\mid X{=}1)=\dfrac{\P(X{=}1,Y{=}0)}{\P(X{=}1)}\approx\dfrac{0.18}{0.45}=0.4$.
+\end{soln}
+
+\subsection*{Drill 16 --- Uniform probabilities}
+$Y\sim\Unif(0,10)$, density $f=\frac1{10}$ on $[0,10]$.
+\begin{soln}
+(a) $\P(2<Y<5)=\dfrac{5-2}{10}=0.3$. \quad (b) $\P(Y>7)=\dfrac{10-7}{10}=0.3$. \quad (c) $\P(Y=4)=0$.\\
+(d) A single point has zero length, so zero area under the density. This does not mean $Y$ can't be near $4$: intervals around $4$ have positive probability (e.g.\ $\P(3.9<Y<4.1)=0.02$), and $\P(Y=4)=0$ is just the limit as the interval shrinks to a point.
+\end{soln}
+
+\subsection*{Drill 17 --- Density is not probability}
+$Y\sim\Unif(0,0.2)$.
+\begin{soln}
+(a) $f(y)=\dfrac1{0.2}=5$ on $[0,0.2]$ (and $0$ elsewhere).\\
+(b) A density is probability \emph{per unit length}, not a probability. Only the area has to be at most $1$: here $5\times0.2=1$.\\
+(c) $\P(0.05<Y<0.10)=5\times0.05=0.25$.
+\end{soln}
+
+\subsection*{Drill 18 --- Conditioning on an interval}
+$Y\sim\Unif(0,1)$.
+\begin{soln}
+(a) $\P(Y<0.3)=0.3$.\\
+(b) $\P(Y<0.3\mid Y<0.5)=\dfrac{\P(Y<0.3)}{\P(Y<0.5)}=\dfrac{0.3}{0.5}=0.6$ (since $\{Y<0.3\}\subset\{Y<0.5\}$).\\
+(c) $\P(Y>0.7\mid Y>0.4)=\dfrac{\P(Y>0.7)}{\P(Y>0.4)}=\dfrac{0.3}{0.6}=0.5$.
+\end{soln}
+
+\subsection*{Drill 19 --- Mixing a Bernoulli and a Uniform}
+$X\sim\Bern(0.3)$ (rain), $Y\mid(X{=}0)\sim\Unif(0,5)$, $Y\mid(X{=}1)\sim\Unif(0,20)$.
+\begin{soln}
+(a) $\P(Y<3\mid X{=}0)=\dfrac35=0.6$; \quad $\P(Y<3\mid X{=}1)=\dfrac3{20}=0.15$.\\
+(b) Marginalize $X$ out: $\P(Y<3)=0.7(0.6)+0.3(0.15)=0.42+0.045=0.465$.\\
+(c) Bayes: $\P(X{=}1\mid Y<3)=\dfrac{\P(Y<3\mid X{=}1)\P(X{=}1)}{\P(Y<3)}=\dfrac{0.15\cdot0.3}{0.465}=\dfrac{0.045}{0.465}=\dfrac3{31}\approx0.097$.\\
+(d) A short delay is much more likely on a dry day ($0.6$) than a rainy one ($0.15$), so seeing a short delay makes rain less likely than the prior $0.3$.
+\end{soln}
+
+\subsection*{Drill 20 --- Simulating a mixed model}
+\begin{soln}
+\begin{lstlisting}
+N = 200_000
+x = np.random.choice([0, 1], size=N, p=[0.7, 0.3])     # X ~ Bernoulli(0.3)
+y = np.empty(N)
+y[x == 0] = np.random.uniform(0, 5, len(y[x == 0]))     # Y | X=0 ~ Uniform(0,5)
+y[x == 1] = np.random.uniform(0, 20, len(y[x == 1]))    # Y | X=1 ~ Uniform(0,20)
+
+print(np.mean(y < 3))            # estimates P(Y < 3), exact 0.465
+print(np.mean(x[y < 3] == 1))    # estimates P(X=1 | Y<3), exact 3/31 = 0.0968
+\end{lstlisting}
+The first print should be close to $0.465$ (Drill 19(b)); the second restricts to the samples with $y<3$ and averages the indicator $x=1$, so it should be close to $0.097$ (Drill 19(c)). (Simulated with $2$ million draws: $0.465$ and $0.097$.)
+\end{soln}
+
+\subsection*{Drill 21 --- Binomial probabilities}
+$Y\sim\text{Binomial}(4,q)$.
+\begin{soln}
+(a) $S_Y=\{0,1,2,3,4\}$ (number of successes in $4$ trials).\\
+(b) $\P(Y=0)=(1-q)^4$ (all four fail).\\
+(c) $\P(Y=1)=4\,q(1-q)^3$ (four positions for the single success, each sequence has probability $q(1-q)^3$).\\
+(d) $\P(Y\ge1)=1-\P(Y=0)=1-(1-q)^4$ (the complement is the simplest route).
+\end{soln}
+
+\subsection*{Drill 22 --- Counting configurations}
+$Y\sim\text{Binomial}(5,q)$.
+\begin{soln}
+(a) $\binom52=\dfrac{5\cdot4}{2\cdot1}=10$ sequences of $5$ flips have exactly two ones.\\
+(b) One particular sequence, e.g.\ $(1,1,0,0,0)$: $q\cdot q\cdot(1-q)^3=q^2(1-q)^3$ (independence).\\
+(c) $\P(Y=2)=\binom52q^2(1-q)^3=10\,q^2(1-q)^3$.\\
+(d) $q^2(1-q)^3$ is the probability of only \emph{one} arrangement of the two ones; $Y=2$ happens for any of the $10$ arrangements, and they are disjoint, so their probabilities add.
+\end{soln}
+
+%==========================================================
+\section{Unit 2 drills}
+%==========================================================
+
+\subsection*{Computing conditional averages}
+Data $\{(1,2),(1,2),(3,1),(1,4),(3,3),(2,2),(1,5)\}$ of pairs $(Y_1,Y_2)$.
+\begin{soln}
+(a) $\E[Y_1]$ is estimated by the average of \emph{all seven} $Y_1$ values: $\dfrac{1+1+3+1+3+2+1}7=\dfrac{12}7\approx1.71$.\\
+(b) $\E[Y_1\mid Y_2{=}2]$: keep the rows with $Y_2=2$: $(1,2),(1,2),(2,2)$; average their $Y_1$: $\dfrac{1+1+2}3=\dfrac43$.\\
+(c) $\E[Y_2\mid Y_1{=}1]$: rows with $Y_1=1$: $(1,2),(1,2),(1,4),(1,5)$; average their $Y_2$: $\dfrac{2+2+4+5}4=\dfrac{13}4=3.25$.\\
+(d) $\E[Y_2\mid Y_1>1]$: rows with $Y_1>1$: $(3,1),(3,3),(2,2)$; average their $Y_2$: $\dfrac{1+3+2}3=2$.
+\end{soln}
+
+\subsection*{Conditional means from a joint table}
+\begin{center}
+\begin{tabular}{c|ccc}
+ & $X=0$ & $X=1$ & $X=2$\\\hline
+$Y=0$ & 0.10 & 0.20 & 0.10\\
+$Y=1$ & 0.15 & 0.15 & 0.30
+\end{tabular}
+\end{center}
+\begin{soln}
+Column sums (marginal of $X$): $\P(X{=}0)=0.25$, $\P(X{=}1)=0.35$, $\P(X{=}2)=0.40$.
+\[
+\E[X]=0(0.25)+1(0.35)+2(0.40)=1.15.
+\]
+Row $Y=0$ sums to $0.4$: $\E[X\mid Y{=}0]=\dfrac{0(0.10)+1(0.20)+2(0.10)}{0.4}=\dfrac{0.4}{0.4}=1$.\\
+Row $Y=1$ sums to $0.6$: $\E[X\mid Y{=}1]=\dfrac{0(0.15)+1(0.15)+2(0.30)}{0.6}=\dfrac{0.75}{0.6}=1.25$.\\
+Check with the tower property: $0.4(1)+0.6(1.25)=1.15=\E[X]$. \checkmark
+\end{soln}
+
+\subsection*{Expectation and variance from a table}
+$\P(Y{=}0)=0.2$, $\P(Y{=}1)=0.5$, $\P(Y{=}2)=0.3$.
+\begin{soln}
+$\E[Y]=0(0.2)+1(0.5)+2(0.3)=1.1$. \quad $\E[Y^2]=0(0.2)+1(0.5)+4(0.3)=1.7$.\\
+$\Var(Y)=\E[Y^2]-(\E Y)^2=1.7-1.21=0.49$ (so $\sigma=0.7$).
+\end{soln}
+
+\subsection*{Weighted conditional means}
+$\P(X{=}0)=0.7$, $\P(X{=}1)=0.3$, $\E[Y\mid X{=}0]=10$, $\E[Y\mid X{=}1]=20$.
+\begin{soln}
+Tower property: $\E[Y]=\E[\E[Y\mid X]]=0.7(10)+0.3(20)=7+6=13$.
+\end{soln}
+
+\subsection*{Law of total variance from conditional moments}
+Same setup plus $\Var(Y\mid X{=}0)=4$, $\Var(Y\mid X{=}1)=9$.
+\begin{soln}
+Within-group: $\E[\Var(Y\mid X)]=0.7(4)+0.3(9)=2.8+2.7=5.5$.\\
+Between-group: $\Var(\E[Y\mid X])=0.7(10-13)^2+0.3(20-13)^2=0.7(9)+0.3(49)=6.3+14.7=21$ (using $\E[Y]=13$ from the previous drill).\\
+Total: $\Var(Y)=5.5+21=26.5$.
+\end{soln}
+
+\subsection*{Sum of Bernoulli variables}
+$Y=\sum_{i=1}^{12}X_i$, $X_i$ iid $\Bern(0.25)$.
+\begin{soln}
+$\E[Y]=12(0.25)=3$. \quad $\Var(Y)=12(0.25)(0.75)=2.25$, so $\sigma=1.5$ (variances add for independent $X_i$).\\
+$\mathrm{CV}=\sigma/\mu=1.5/3=0.5$. (Check with the formula $\sqrt{(1-q)/(qN)}=\sqrt{0.75/3}=0.5$.)
+\end{soln}
+
+\subsection*{Normal probabilities}
+$Y\sim\Norm(10,9)$.
+\begin{soln}
+The variance is $9$, so $\sigma=3$.\\
+(a) $Z=\dfrac{Y-10}{3}\sim\Norm(0,1)$.\\
+(b) $13=10+3=\mu+\sigma$, so $\P(Y>13)=\P(Z>1)\approx\dfrac{100-68}2\%=16\%$.\\
+(c) $7=\mu-\sigma$ and $13=\mu+\sigma$, so $\P(7<Y<13)\approx68\%$.
+\end{soln}
+
+\subsection*{Linear transformation}
+$X\sim\Norm(5,9)$, $Y=-2X+7$.
+\begin{soln}
+(a) $\E[Y]=-2(5)+7=-3$; $\Var(Y)=(-2)^2\cdot9=36$. So $Y\sim\Norm(-3,\,36)$, with $\sigma_Y=6$.\\
+(b) Standardize: $\dfrac{Y+3}6$. Since $3=-3+6=\mu_Y+\sigma_Y$, $\P(Y>3)\approx16\%$.\\
+(c) $\P(Y>-3)=\dfrac12$: $-3$ is the mean of $Y$ and a Normal distribution is symmetric about its mean.
+\end{soln}
+
+\subsection*{Sum of Normal random variables}
+$X_1\sim\Norm(2,4)$, $X_2\sim\Norm(-1,9)$ independent, $S=3X_1-2X_2$.
+\begin{soln}
+(a) $\E[S]=3(2)-2(-1)=8$. $\Var(S)=3^2(4)+(-2)^2(9)=36+36=72$ (independence, so variances add with squared coefficients). $S\sim\Norm(8,72)$, $\sigma_S=\sqrt{72}=6\sqrt2\approx8.49$.\\
+(b) $\dfrac{S-8}{\sqrt{72}}\sim\Norm(0,1)$.\\
+(c) $0$ and $16$ are each $8$ away from the mean, and $8/8.49\approx0.94$ standard deviations. So the interval is a bit narrower than $\mu\pm1\sigma$, and the estimate is \textbf{a bit under $68\%$}, roughly $65\%$. (The exact value is $0.654$; on an exam, ``about $65$--$68\%$, just below the $\pm1\sigma$ rule'' is the expected level of precision.)
+\end{soln}
+
+\subsection*{Binary predictor means}
+$X\in\{0,1\}$, $Y\mid X\sim\Norm(\beta_0+\beta_1X,\sigma^2)$.
+\begin{soln}
+$\E[Y\mid X{=}0]=\beta_0$; \quad $\E[Y\mid X{=}1]=\beta_0+\beta_1$; \quad difference $=\beta_1$.\\
+Why the sample version is natural: a conditional expectation can be estimated by the sample average over the rows satisfying the condition. So $\bar Y_{X=1}\approx\E[Y\mid X{=}1]$ and $\bar Y_{X=0}\approx\E[Y\mid X{=}0]$, and their difference estimates $\beta_1$; in code, \py{y[x==1].mean() - y[x==0].mean()}.
+\end{soln}
+
+\subsection*{Covariance, correlation, and shrinkage}
+$\Var(X)=4$, $\Var(Y)=25$, $\Cov(X,Y)=8$.
+\begin{soln}
+(a) $\beta_1=\dfrac{\Cov(X,Y)}{\Var(X)}=\dfrac84=2$ (from $\Cov(X,Y)=\beta_1\sigma_X^2$).\\
+(b) $\rho=\dfrac{\Cov(X,Y)}{\sigma_X\sigma_Y}=\dfrac8{2\cdot5}=0.8$. (Check: $\beta_1\sigma_X/\sigma_Y=2\cdot2/5=0.8$.)\\
+(c) $\E[Z_Y\mid Z_X{=}2]=\rho\cdot2=1.6$ standard deviations above the mean of $Y$: less extreme than $X$'s $2$ (regression to the mean, since $|\rho|<1$).
+\end{soln}
+
+\subsection*{Linear regression model parameters}
+$\hat\beta_1=\frac12$, $\hat\sigma_\epsilon=1$, $\sigma_X^2=4$. Estimate $R^2$.
+\begin{soln}
+$\sigma_Y^2=\beta_1^2\sigma_X^2+\sigma_\epsilon^2=\frac14\cdot4+1=2$.\\
+$R^2=1-\dfrac{\sigma_\epsilon^2}{\sigma_Y^2}=1-\dfrac12=0.5$. (Equivalently $\dfrac{\beta_1^2\sigma_X^2}{\sigma_Y^2}=\dfrac12$: half of the variance of $Y$ is explained by $X$.)
+\end{soln}
+
+\subsection*{Correlation and units}
+$\sigma_X=10$, $\sigma_Y=4$, $\Cov(X,Y)=20$.
+\begin{soln}
+(a) $\rho=\dfrac{20}{10\cdot4}=0.5$.\\
+(b) Slope $\beta_1=\dfrac{\Cov(X,Y)}{\sigma_X^2}=\dfrac{20}{100}=0.2$. (Check: $\rho\,\sigma_Y/\sigma_X=0.5\cdot4/10=0.2$.)\\
+(c) $\Cov(X,Y)$ has units ($X$-units)$\times$($Y$-units), and $\sigma_X\sigma_Y$ has the same units, so they cancel in $\rho$: it is unitless (it is the slope after standardizing both variables). The slope $\beta_1=\Cov/\sigma_X^2$ has units ($Y$-units)/($X$-units): the change in $Y$ per one-unit change in $X$. For example, measuring $X$ in meters instead of centimeters multiplies $\beta_1$ by $100$ but leaves $\rho$ unchanged.
+\end{soln}
+
+\end{document}
