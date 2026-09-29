@@ -77,7 +77,7 @@ $Y\sim\Norm(\mu,\sigma^2)$ & $\dfrac{1}{\sqrt{2\pi\sigma^2}}e^{-(y-\mu)^2/2\sigm
 page says to memorize Uniform, and some practice problems need it. Bell curve: $68\%$ within $1\sigma$, $95\%$ within $2\sigma$, $99.7\%$ within $3\sigma$.}
 
 Also know cold: \textbf{(i)} $\P(x,y)=\P(y\given x)\P(x)$ and Bayes; \textbf{(ii)} independence $\iff \P(x,y)=\P(x)\P(y)$;
-\textbf{(iii)} $\E[Y]=\E[\E[Y\given X]]$; \textbf{(iv)} $\Var(Y)=\E[\Var(Y\given X)]+\Var(\E[Y\given X])$;
+\textbf{(iii)} $\E[Y]=\E[\E[Y\given X]]$ (tower property, \S2.2); \textbf{(iv)} $\Var(Y)=\E[\Var(Y\given X)]+\Var(\E[Y\given X])$ (law of total variance, \S2.3);
 \textbf{(v)} $aX+b$ and sums of independent Normals; \textbf{(vi)} $\beta_1=\E[Y\given X=1]-\E[Y\given X=0]$;
 \textbf{(vii)} $\Cov(X,Y)=\beta_1\sigma_X^2$.
 
@@ -224,20 +224,39 @@ across different scales; blows up when the mean is near $0$; shifting all values
   \item Linearity: $\E[X+Y]=\E[X]+\E[Y]$ (always, no independence needed). So $\E[aX+b]=a\E[X]+b$.
   \item $\Var(aX+b)=a^2\Var(X)$ (shifts don't matter, scale gets squared).
   \item Independent $\Rightarrow\E[XY]=\E[X]\E[Y]$, and $\Var(X+Y)=\Var(X)+\Var(Y)$.
-  \item \textbf{Tower property:} $\E[Y]=\E[\E[Y\given X]]=\sum_x \E[Y\given X=x]\,\P(X=x)$.
-  \item \textbf{Law of total variance:} $\Var(Y)=\underbrace{\E[\Var(Y\given X)]}_{\text{within-group}}+\underbrace{\Var(\E[Y\given X])}_{\text{between-group}}$.
 \end{enumerate}
 \end{keybox}
-
-\textbf{Conditional expectation} $\E[Y\given X=x]=\sum_y y\,\P(y\given x)$: from data, average $Y$ over only those rows with $X=x$.
-$\E[Y\given X]$ is itself a random variable (a function of $X$). Careful: $\E[Y\given X=x]=\E[Y]$ for all $x$ does \emph{not} imply independence.
 
 \textbf{Bernoulli/Binomial facts.} $Y\sim\Bern(q)$: $\E Y=q$, $\Var Y=q(1-q)$ (since $Y^2=Y$). If $Y=\sum_{i=1}^N X_i$ with $X_i$ iid $\Bern(q)$:
 $\E Y=Nq$, $\Var Y=Nq(1-q)$, $\mathrm{CV}=\sqrt{(1-q)/(qN)}\to0$.
 
-\textbf{Worked example (tower + total variance).} Morning ($X{=}0$, prob $0.6$, mean $78$), afternoon ($X{=}1$, prob $0.4$, mean $86$), both with variance $64$:
+\subsection{The tower property}
+\textbf{Conditional expectation} $\E[Y\given X=x]=\sum_y y\,\P(y\given x)$: from data, average $Y$ over only those rows with $X=x$.
+$\E[Y\given X]$ is itself a random variable (a function of $X$). Careful: $\E[Y\given X=x]=\E[Y]$ for all $x$ does \emph{not} imply independence.
+
+\begin{keybox}[title={Tower property}]
+\[
+\E[Y]=\E[\E[Y\given X]]=\sum_x \E[Y\given X=x]\,\P(X=x).
+\]
+\end{keybox}
+The overall average is a probability-weighted average of the group averages.
+
+\textbf{Worked example.} Morning ($X{=}0$, prob $0.6$, mean $78$), afternoon ($X{=}1$, prob $0.4$, mean $86$):
+\[
+\E[Y]=78(0.6)+86(0.4)=81.2.
+\]
+
+\subsection{Law of total variance}
+\begin{keybox}[title={Law of total variance}]
+\[
+\Var(Y)=\underbrace{\E[\Var(Y\given X)]}_{\text{within-group}}+\underbrace{\Var(\E[Y\given X])}_{\text{between-group}}.
+\]
+\end{keybox}
+Total spread splits into the average spread \emph{inside} each group, plus how much the group \emph{means} themselves vary.
+
+\textbf{Worked example.} Continuing the morning/afternoon example above, with both groups having variance $64$:
 \begin{align*}
-\E[Y]&=78(0.6)+86(0.4)=81.2,\qquad \E[\Var(Y\given X)]=64,\\
+\E[\Var(Y\given X)]&=64,\\
 \Var(\E[Y\given X])&=0.6(78-81.2)^2+0.4(86-81.2)^2=15.36,
 \end{align*}
 so $\Var(Y)=64+15.36=79.36$. Total variance is bigger than either group's, because the group means also differ.
