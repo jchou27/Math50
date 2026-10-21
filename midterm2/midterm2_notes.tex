@@ -62,12 +62,12 @@
 \setlength{\headheight}{14pt}
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{Math 50 -- Lectures 8--13 notes (10/2--10/14)}
-\rhead{Unit 2.4, Unit 3, Unit 4.1--4.2}
+\lhead{Math 50 -- Midterm 2 notes (Lectures 8--16, 10/2--10/21)}
+\rhead{Unit 2.4, Unit 3, Unit 4}
 \cfoot{\thepage}
 
-\title{\textbf{Math 50 Notes: Estimators, Uncertainty, and Regression}\\[2pt]
-\large Lectures 8--13 (10/2--10/14) and the Unit 3 course notes}
+\title{\textbf{Math 50 Midterm 2 Notes: Estimators, Uncertainty, and Regression}\\[2pt]
+\large Lectures 8--16 (10/2--10/21) and the Unit 3--4 course notes}
 \author{}
 \date{}
 
@@ -76,8 +76,8 @@
 \thispagestyle{fancy}
 
 \begin{tipbox}[title={How to use these notes}]
-These notes combine the slides from 10/2, 10/5, 10/7, 10/9, 10/12 and 10/14 with the Unit 3 course notes, organized by topic
-instead of by lecture. Every derivation is written out step by step, with the reason for each step in gray on the right.
+These notes combine the slides from 10/2, 10/5, 10/7, 10/9, 10/12, 10/14, 10/19 and 10/21 with the Unit 3 and Unit 4 course notes,
+organized by topic instead of by lecture. Every derivation is written out step by step, with the reason for each step in gray on the right.
 
 \textbf{New to the notation?} Start with the \hyperref[sec:glossary]{Glossary} right after the contents: every symbol, how to read it
 aloud, what it means, and an example. Then read Section~\ref{sec:toolkit}, which reviews the Unit 1--2 rules (from Lectures 1--7) with a
@@ -165,7 +165,7 @@ $\rho$,\ $\corr(X,Y)$ & ``rho'', ``correlation'' & covariance rescaled to lie in
 $\rho_k$ & ``rho sub $k$'' & autocorrelation: correlation of values $k$ steps apart & AR(1): $\rho_k=\rho^k$\\
 \gh{C. Greek letters}
 $\mu$ & ``mew'' (mu) & a mean (true average) & $\E[Y]=\mu$\\
-$\sigma$,\ $\Sigma$ & ``sigma'', ``capital sigma'' & $\sigma$: standard deviation; $\Sigma$: the sum sign & \\
+$\sigma$,\ $\Sigma$ & ``sigma'', ``capital sigma'' & $\sigma$: standard deviation; $\Sigma$: the sum sign, \textbf{or} (Unit 4.3--4.4) the covariance matrix of the predictors & $\Sigma=\begin{bmatrix}1&\rho\\\rho&1\end{bmatrix}$\\
 $\rho$ & ``row'' (rho) & correlation & \\
 $\beta$ & ``bay-tuh'' (beta) & regression coefficients & $\beta_0$ intercept, $\beta_1$ slope\\
 $\epsilon$ & ``epsilon'' & noise: the part of $Y$ the line does not explain & $Y=\beta_0+\beta_1X+\epsilon$\\
@@ -192,8 +192,14 @@ $R^2$ & ``R squared'' & $1-\SSR/\SST$: fraction of the spread in $Y$ explained; 
 $\beta_0$,\ $\beta_1$ & ``beta zero'', ``beta one'' & intercept and slope of the regression line & \\
 $\beta_{hs}$,\ $\beta_{iq}$ & ``beta H S'', ``beta I Q'' & coefficient on the named predictor & $\hat\beta_{iq}=0.56$\\
 $\beta'$ & ``beta prime'' & coefficient when that predictor is \emph{alone} in the model & $\hat\beta'_{hs}=11.8$\\
-$\beta_{1,2}$ & ``beta one two'' & slope when $X_2$ is regressed on $X_1$ (the \emph{second} on the \emph{first}) & $\beta_{hs,iq}=10.3$: IQ gap between the HS groups\\
+$\beta_{1,2}$ & ``beta one two'' & slope when $X_2$ is regressed on $X_1$ (the \emph{second} on the \emph{first}). The 10/21 slides write $\beta'_{1,j}$ for the same thing & $\beta_{hs,iq}=10.3$: IQ gap between the HS groups\\
 $\sigma_\epsilon$ & ``sigma epsilon'' & SD of the noise: spread of points around the line & $\hat\sigma_\epsilon\approx5$ (graders)\\
+categorical & & a predictor whose values are categories, not numbers on a scale & party of the incumbent; ethnicity\\
+$X_{dem}$ (dummy) & ``X dem'' & dummy (indicator) variable: 1 if the data point is in that category, 0 if not & $X_{dem}=1$ for a Democratic incumbent\\
+baseline & & the category left out (no dummy); every dummy coefficient is a difference from it & open seats; Black respondents\\
+collinear & & predictors that are (almost) exact linear functions of each other & $X_{dem}+X_{rep}+X_{open}=1$; weight and hip size\\
+$\rho_{1,2}$ & ``rho one two'' & correlation between the predictors $X_1$ and $X_2$ & past vote and inc: $0.86$\\
+$R_j^2$ & ``R squared sub $j$'' & $R^2$ from regressing predictor $X_j$ on the \emph{other} predictors & weight on hip: $0.94^2=0.88$\\
 \gh{E. Python}
 \py{np.mean(x)}, \py{np.sum(x)}, \py{len(x)} & & average, total, count & \py{np.mean(x)} $=$ \py{np.sum(x)/len(x)}\\
 \py{np.var(x)}, \py{np.std(x)} & & variance and SD (dividing by $N$) & \\
@@ -205,6 +211,7 @@ $\sigma_\epsilon$ & ``sigma epsilon'' & SD of the noise: spread of points around
 \py{rng.normal(}\allowbreak\py{size=N)} & & $N$ draws from $\Norm(0,1)$ & \\
 \py{norm.cdf(z)} & & $\Phi(z)$ (from \py{scipy.stats}) & \py{norm.cdf(1.96)} $\approx0.975$\\
 \py{sm.OLS(y, X).fit()} & & least squares fit with statsmodels & Section~\ref{sec:mult}\\
+\py{pd.get\_}\allowbreak\py{dummies(x)} & & one 0/1 column per category; \py{drop\_first=True} drops the first as the baseline & Section~\ref{sec:cat}\\
 \end{longtable}
 }
 
@@ -1564,7 +1571,8 @@ Suppose $Y=\beta_0+\beta_1X_1+\beta_2X_2+\epsilon$, where $\epsilon$ is uncorrel
 \]
 \item Adding a predictor never decreases $\rho^2$.
 \end{enumerate}
-The same argument with sample covariances shows $R^2$ never decreases. Both results extend to $K$ predictors.
+The same argument with sample covariances shows $R^2$ never decreases. Both results extend to $K$ predictors
+(Section~\ref{sec:ovbk}).
 \inwords{(1) leaving $X_2$ out makes $X_1$'s slope absorb $X_2$'s effect, scaled by how much $X_2$ rises with $X_1$; (2) adding a predictor can never explain less of $Y$'s variance.}
 \end{keybox}
 \textbf{Reading (1).} Leaving $X_2$ out does not make its effect disappear; it gets credited to $X_1$, in proportion to how much $X_2$ moves with
@@ -1688,6 +1696,595 @@ Yesterday's effect gets credited to the day before yesterday.
 \end{examplebox}
 
 %==========================================================
+\section{Omitted variables in AR processes (Lecture 15)}\label{sec:arovb}
+%==========================================================
+The omitted-variable bias formula also explains what happens when a time series is regressed on too few (or too many) of its own past
+values. Throughout, the process is stationary (Section~\ref{sec:ar}): every $Y_t$ has the same mean and variance, and the covariance of
+$Y_t$ and $Y_{t-k}$ depends only on the gap $k$. So the slope of $Y_{t-1}$ on $Y_{t-k}$ equals the slope of $Y_t$ on $Y_{t-k+1}$.
+
+\begin{examplebox}[title={Question (10/19): an AR(1) fit with extra lags, and with lag $k$ alone}]
+Data come from $Y_t=\rho Y_{t-1}+\epsilon_t$ (stationary), and we fit $Y_t=\beta_0+\beta_1Y_{t-1}+\beta_2Y_{t-2}+\epsilon'_t$. With lots of data,
+what are $\hat\beta_1,\hat\beta_2$? What is the slope when $Y_{t-1}$ is left out? What is the slope of $Y_t$ on $Y_{t-k}$ alone?
+
+\textbf{Two lags.} The true model already has the form of the fitted one, with $\beta_1=\rho$, $\beta_2=0$, and $\epsilon_t$ uncorrelated with
+the past values $Y_{t-1},Y_{t-2}$. So $\hat\beta_1\to\rho$ and $\hat\beta_2\to0$: once yesterday is known, the day before adds nothing.
+
+\textbf{Leave out $Y_{t-1}$.} OVB with $X_1=Y_{t-2}$ (kept) and $X_2=Y_{t-1}$ (left out):
+$\beta'_{lag2}=\underbrace{0}_{\beta_{lag2}}+\underbrace{\rho}_{\beta_{lag1}}\cdot\underbrace{\rho}_{\text{slope of }Y_{t-1}\text{ on }Y_{t-2}}=\rho^2$.
+
+\textbf{Lag $k$ alone.} Fit $Y_t$ on $Y_{t-1}$ and $Y_{t-k}$: the true coefficients are $\rho$ and $0$. Leaving out $Y_{t-1}$,
+\[
+\beta'_{lag\,k}=0+\rho\cdot(\text{slope of }Y_{t-1}\text{ on }Y_{t-k})=\rho\cdot\beta'_{lag\,k-1}.
+\]
+The slope of $Y_{t-1}$ on $Y_{t-k}$ is a gap of $k-1$ steps, which by stationarity is $\beta'_{lag\,k-1}$. Starting from $\beta'_{lag1}=\rho$ and
+multiplying by $\rho$ each step gives $\beta'_{lag\,k}=\rho^k$, the autocorrelation $\rho_k$ from Section~\ref{sec:ar}. Each step back multiplies the
+effect by another $\rho$.
+\end{examplebox}
+
+\begin{examplebox}[title={Question (10/19): an AR(2) process fit with one lag}]
+Now $Y_t=0.5\,Y_{t-1}+0.3\,Y_{t-2}+\epsilon_t$, $\epsilon_t\sim\Norm(0,1)$. In the slides' simulation it looks much like an AR(1) with $\rho=0.8$
+(slow, wandering swings). What is the slope of the single-predictor regression of $Y_t$ on $Y_{t-1}$, with $Y_{t-2}$ left out?
+
+\textbf{OVB.} $X_1=Y_{t-1}$ (kept), $X_2=Y_{t-2}$ (left out):
+$\beta'_{lag1}=0.5+0.3\,\beta_{1,2}$, where $\beta_{1,2}$ is the slope of $Y_{t-2}$ on $Y_{t-1}$. By stationarity that is a one-step slope,
+$\Cov(Y_{t-1},Y_{t-2})/\sigma_Y^2=\rho_1$, the lag-1 autocorrelation.
+
+\textbf{Find $\rho_1$.} The single-predictor slope we want is also a one-step slope, so $\beta'_{lag1}=\rho_1$ too. Directly:
+\begin{align*}
+\Cov(Y_t,Y_{t-1})&=\Cov(0.5Y_{t-1}+0.3Y_{t-2}+\epsilon_t,\ Y_{t-1}) \why{substitute the model}\\
+&=0.5\,\sigma_Y^2+0.3\,\Cov(Y_{t-2},Y_{t-1})+0 \why{bilinearity; $\epsilon_t$ is new noise}\\
+\rho_1&=0.5+0.3\,\rho_1 \why{divide by $\sigma_Y^2$; stationarity}\\
+\rho_1&=\frac{0.5}{0.7}=\frac57\approx0.714. \why{solve}
+\end{align*}
+So $\beta'_{lag1}=0.5+0.3\times0.714=0.714$. The single-lag slope ($0.71$) is bigger than the true lag-1 coefficient ($0.5$) because it also
+picks up the effect of $Y_{t-2}$, which moves with $Y_{t-1}$.
+\end{examplebox}
+
+\subsection{Real series: AR($k$) fits with $k=1,\dots,10$}
+The slides fit each series on its previous $k$ values for $k=1,\dots,10$ and plot $R^2$ and the coefficients against $k$:
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+\item \textbf{Bitcoin} ($Y_t=\log_{10}$ daily price, 4283 days). $R^2\approx1$ for every $k$. The lag-1 coefficient stays near 1 (about $0.9$
+once more lags are added), and lags $2,\dots,k$ are all near 0. Earlier days add essentially nothing once yesterday's price is known: the
+behavior of a random walk (Section~\ref{sec:ar}).
+\item \textbf{Daily casualty counts} (Ukraine: Russian personnel losses; Gaza: reported deaths). $R^2$ rises only a little with $k$
+(Ukraine about $0.82\to0.86$, Gaza about $0.25\to0.37$), but the lag-1 coefficient falls a lot as lags are added (Ukraine about $0.9\to0.4$,
+Gaza about $0.5\to0.3$), and the other lags get positive coefficients. These series are \emph{not} AR(1): several past days matter. With only
+lag 1 in the model, its coefficient absorbs the effects of the omitted earlier days, which is OVB exactly as in the AR(2) question.
+\end{itemize}
+
+%==========================================================
+\section{Categorical predictors: the incumbency advantage (Lecture 15, Unit 4.5)}\label{sec:cat}
+%==========================================================
+\subsection{The data and a first model}
+How big is the advantage of already holding the seat? US House elections, 435 districts (from \emph{Regression and Other Stories}):
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+\item $Y$ (\py{vote}): Democratic share of the two-party vote in 1988, as a fraction from 0 to 1;
+\item $X_{past}$ (\py{past\_vote}): Democratic share in 1986, on the same scale;
+\item $X_{inc}$ (\py{inc}): $+1$ if a Democrat is the incumbent, $-1$ if a Republican is, $0$ for an open seat.
+\end{itemize}
+Uncontested races are set to $0.75$ or $0.25$. Since shares are fractions, a coefficient of $0.1$ means 10 percentage points. In the scatter
+plot of 1988 vs.\ 1986 share, the points lie near the line $y=x$, with Democratic incumbents in the upper right, Republican incumbents in the
+lower left, and open seats in between.
+
+\begin{examplebox}[title={Question (10/19): a limitation of the model $Y=\beta_0+\beta_{past}X_{past}+\beta_{inc}X_{inc}+\epsilon$}]
+Any one of these is a fine answer (all are assumptions, not data problems):
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Coding $X_{inc}$ as $-1,0,1$ forces the step from a Republican incumbent to an open seat to have the \emph{same} effect as the step from
+an open seat to a Democratic incumbent, so the advantage is assumed equal for both parties. (Fixed below with dummy variables.)
+\item Incumbency is not randomized. Incumbents may be stronger candidates, or hold seats for reasons the model does not see, so $\beta_{inc}$
+is an association controlling for past vote, not necessarily a causal effect.
+\item The model is linear in past vote, with the same noise variance for every district.
+\item Uncontested races are set to arbitrary values (0.25, 0.75), which affects the fit.
+\end{itemize}
+\end{examplebox}
+
+\begin{lstlisting}[style=output]
+Dep. Variable:                   vote   R-squared:                       0.819
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.5063      0.004    121.695      0.000       0.498       0.514
+inc            0.1906      0.004     44.210      0.000       0.182       0.199
+\end{lstlisting}
+\begin{lstlisting}[style=output]
+Dep. Variable:                   vote   R-squared:                       0.887
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.2380      0.017     14.068      0.000       0.205       0.271
+past_vote      0.5210      0.032     16.169      0.000       0.458       0.584
+inc            0.0964      0.007     14.284      0.000       0.083       0.110
+\end{lstlisting}
+
+\begin{examplebox}[title={Question (10/19): interpret, recover a slope with OVB, and compare importance}]
+\textbf{Interpret.} \emph{Inc only:} districts one step apart in incumbency (Republican incumbent $\to$ open $\to$ Democratic incumbent) differ
+by $0.19$ (19 points) in average Democratic share. This mixes two things: incumbency, and the fact that Democratic incumbents hold districts
+that already vote Democratic. \emph{With past vote:} comparing districts with the \emph{same} 1986 share, one step of incumbency goes with
+$0.096$, about 10 points. A Democratic vs.\ a Republican incumbent (two steps) is about 19 points.
+
+\textbf{Slope of past vote on inc.} OVB with $X_1=$ inc (kept) and $X_2=$ past vote (left out), $\beta'_{inc}=\beta_{inc}+\beta_{past}\beta_{inc,past}$:
+\[
+0.1906=0.0964+0.521\,\hat\beta_{inc,past}\ \Longrightarrow\ \hat\beta_{inc,past}=\frac{0.0942}{0.521}\approx0.18.
+\]
+One step in incumbency goes with 18 points more Democratic vote in 1986. Check: a slope is $\rho\,\sigma_{past}/\sigma_{inc}=0.86\times0.20/0.95=0.18$
+(using the correlation $0.86$ from Section~\ref{sec:collin}).
+
+\textbf{Which matters more?} Scale by the SDs $\sigma_{past}\approx0.20$, $\sigma_{inc}\approx0.95$:
+$\hat\beta_{past}\sigma_{past}=0.521\times0.20=0.104$ and $\hat\beta_{inc}\sigma_{inc}=0.0964\times0.95=0.092$. They are about equally important,
+with past vote slightly ahead (one SD of each moves the expected share by about 10 points). The raw coefficients ($0.52$ vs.\ $0.10$) would
+exaggerate the difference.
+\end{examplebox}
+
+\subsection{Dummy variables}
+\texttt{inc} is really \textbf{categorical}: it names a category (Republican incumbent, open seat, Democratic incumbent) rather than a number on a
+scale. Going from a Republican incumbent to an open seat need not have the same effect as going from an open seat to a Democratic incumbent.
+To let each category have its own effect, introduce \textbf{dummy variables}, each equal to 1 for one category and 0 otherwise:
+$X_{dem}$ (\py{dem\_inc}), $X_{rep}$ (\py{rep\_inc}), $X_{open}$. With all three:
+\[
+Y=\beta_0+\beta_{past}X_{past}+\beta_{dem}X_{dem}+\beta_{rep}X_{rep}+\beta_{open}X_{open}+\epsilon.
+\]
+
+\begin{examplebox}[title={Question (10/19): what is the interpretation of $\beta_{dem}$ in this model?}]
+By the usual reading, $\beta_{dem}$ is the change in average $Y$ when $X_{dem}$ goes up by 1 \emph{with the other predictors held fixed}. But every
+district is in exactly one category, so $X_{dem}+X_{rep}+X_{open}=1$ always. If $X_{rep}$ and $X_{open}$ are held fixed, $X_{dem}$ cannot change,
+so $\beta_{dem}$ has no meaning.
+
+The same problem shows up in the fit. Add any number $c$ to $\beta_{dem},\beta_{rep},\beta_{open}$ and subtract $c$ from $\beta_0$: every prediction
+is unchanged (it changes by $c(X_{dem}+X_{rep}+X_{open})-c=0$). The data cannot choose among these, so least squares has no unique answer. The
+dummies are \textbf{collinear} with the intercept.
+\end{examplebox}
+
+\textbf{Solution: leave one category out}, the \textbf{baseline} (here, open seats). Compare the linear and the categorical models:
+\[
+Y=\beta_0+\beta_{past}X_{past}+\beta_{inc}X_{inc}+\epsilon,\qquad
+Y=\beta_0+\beta_{past}X_{past}+\beta_{dem}X_{dem}+\beta_{rep}X_{rep}+\epsilon.
+\]
+Now $\beta_{dem}$ is the difference between a Democratic incumbent and an open seat, and $\beta_{rep}$ the difference between a Republican
+incumbent and an open seat, each with past vote held fixed.
+\begin{lstlisting}[style=output]
+Dep. Variable:                   vote   R-squared:                       0.888
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.2530      0.020     12.947      0.000       0.215       0.291
+past_vote      0.5270      0.032     16.260      0.000       0.463       0.591
+dem_inc        0.0760      0.015      5.089      0.000       0.047       0.105
+rep_inc       -0.1152      0.014     -8.227      0.000      -0.143      -0.088
+\end{lstlisting}
+
+\begin{examplebox}[title={Question (10/19): which $\beta_{dem},\beta_{rep}$ give back the linear model? Same advantage for both parties?}]
+In the linear model the incumbency term is $\beta_{inc}X_{inc}$, which is $+\beta_{inc}$ for a Democratic incumbent, $-\beta_{inc}$ for a Republican,
+and $0$ for an open seat. The dummy model gives $\beta_{dem}$, $\beta_{rep}$, and $0$. They agree when
+\[
+\beta_{dem}=\beta_{inc},\qquad\beta_{rep}=-\beta_{inc}.
+\]
+So the linear model is the special case where the two advantages have the same size.
+
+\textbf{Compare.} $\hat\beta_{inc}=0.096$, while $\hat\beta_{dem}=0.076$ and $\hat\beta_{rep}=-0.115$: the estimated advantage is about 8 points for
+Democratic incumbents and 12 points for Republican incumbents, and $0.096$ is roughly their average. The CIs are $[0.047,0.105]$ and (in size)
+$[0.088,0.143]$, which overlap, so the data do not clearly show the advantages differ. $R^2$ barely moves ($0.887\to0.888$).
+\end{examplebox}
+
+\begin{keybox}[title={Dummy variables for a categorical predictor}]
+A categorical predictor with $m$ categories enters the model as $m-1$ dummy variables; the left-out category is the \textbf{baseline}.
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item The coefficient on a dummy is the difference in average $Y$ between that category and the baseline, with the other predictors held fixed.
+\item The difference between two non-baseline categories $a$ and $b$ is $\beta_a-\beta_b$ (the intercepts cancel).
+\item Including all $m$ dummies and an intercept does not work: the dummies add to 1, so they are collinear with the intercept.
+\end{itemize}
+\inwords{give each category its own 0/1 column except one; each coefficient then measures ``this category vs.\ the left-out one''.}
+\end{keybox}
+
+\begin{examplebox}[title={Example (Unit 4.5): earnings disparities between ethnic groups}]
+Earnings data (US adults; $Y$ = earnings in \$1000s), with ethnicity in four categories: Black, Hispanic, Other, White. Python drops the first
+category alphabetically, so Black is the baseline:
+\[
+Y=\beta_0+\beta_{hispanic}X_{hispanic}+\beta_{other}X_{other}+\beta_{white}X_{white}+\epsilon.
+\]
+In terms of conditional expectations, $\beta_{white}=\E[Y\given\text{White}]-\E[Y\given\text{Black}]\approx4.9$ and
+$\beta_{hispanic}=\E[Y\given\text{Hispanic}]-\E[Y\given\text{Black}]\approx-0.7$. The White--Hispanic gap is not a single coefficient, but
+\begin{align*}
+\E[Y\given\text{White}]-\E[Y\given\text{Hispanic}]&=(\beta_0+\beta_{white})-(\beta_0+\beta_{hispanic})\\
+&=\beta_{white}-\beta_{hispanic}\approx4.9-(-0.7)=5.6,
+\end{align*}
+about \$5{,}600.
+\begin{lstlisting}
+import pandas as pd
+D = pd.get_dummies(df["ethnicity"], drop_first=True, dtype=float)
+X = sm.add_constant(D)
+results = sm.OLS(df["earnk"], X).fit()
+\end{lstlisting}
+\end{examplebox}
+
+%==========================================================
+\section{Leaving out all predictors but one (Lecture 16)}\label{sec:ovbk}
+%==========================================================
+\subsection{Omitted-variable bias with many predictors}
+\begin{keybox}[title={Theorem (OVB for $K$ predictors)}]
+Suppose $Y=\beta_0+\beta_1X_1+\beta_2X_2+\cdots+\beta_KX_K+\epsilon$, where $\epsilon$ is uncorrelated with $X_1,\dots,X_K$. If $X_2,\dots,X_K$
+are all left out, the slope of the regression of $Y$ on $X_1$ is
+\[
+\beta'_1=\beta_1+\sum_{j=2}^K\beta_j\,\beta_{1,j},\qquad \beta_{1,j}=\frac{\Cov(X_1,X_j)}{\Var(X_1)}\quad\text{(slope of $X_j$ on $X_1$; the slides write $\beta'_{1,j}$).}
+\]
+\inwords{the single-predictor slope is the direct effect of $X_1$ plus, for every left-out predictor, (how much it moves with $X_1$) $\times$ (its own effect).}
+\end{keybox}
+
+\begin{examplebox}[title={Question (10/21): derive the formula, assuming $\E[X_j]=0$ and $\beta_0=0$ (so $\E[Y]=0$)}]
+The single-predictor slope is $\beta'_1=\Cov(X_1,Y)/\Var(X_1)$. Expand the covariance:
+\begin{align*}
+\Cov(X_1,Y)&=\Cov\Big(X_1,\ \beta_1X_1+\sum_{j=2}^K\beta_jX_j+\epsilon\Big) \why{substitute the model}\\
+&=\beta_1\Cov(X_1,X_1)+\sum_{j=2}^K\beta_j\Cov(X_1,X_j)+\Cov(X_1,\epsilon) \why{bilinearity, one term at a time}\\
+&=\beta_1\Var(X_1)+\sum_{j=2}^K\beta_j\Cov(X_1,X_j). \why{$\Cov(X_1,\epsilon)=0$}
+\end{align*}
+Dividing by $\Var(X_1)$ gives $\beta'_1=\beta_1+\sum_{j\ge2}\beta_j\,\Cov(X_1,X_j)/\Var(X_1)=\beta_1+\sum_{j\ge2}\beta_j\beta_{1,j}$. $\square$
+(This is the two-predictor proof of Section~\ref{sec:ovb} with $K-1$ omitted terms instead of one.)
+\end{examplebox}
+
+\textbf{Picture.} Every path from $X_1$ to $Y$ contributes: the direct arrow ($\beta_1$), and each detour through a left-out $X_j$ (the slope
+$\beta_{1,j}$ times the effect $\beta_j$). The single-predictor slope adds up all the paths.
+\begin{center}
+\begin{tikzpicture}[>={Stealth}, every node/.style={font=\small},
+  var/.style={circle, draw, thick, minimum size=0.85cm, inner sep=1pt}]
+\node[var] (X1) at (0,0) {$X_1$};
+\node[var] (Y) at (8,0) {$Y$};
+\foreach \j/\y in {2/3.0,3/2.0,4/1.0}{
+  \node[var] (X\j) at (4,\y) {$X_\j$};
+  \draw[->, thick, gray!70!black] (X1) -- node[sloped, above, pos=0.55, font=\scriptsize] {$\beta_{1,\j}$} (X\j);
+  \draw[->, thick, dataclr] (X\j) -- node[sloped, above, pos=0.45, font=\scriptsize] {$\beta_\j$} (Y);
+}
+\draw[->, very thick, red] (X1) -- node[below, font=\scriptsize] {$\beta'_1=\beta_1+\beta_2\beta_{1,2}+\beta_3\beta_{1,3}+\beta_4\beta_{1,4}$} (Y);
+\end{tikzpicture}
+\end{center}
+
+\subsection{Example: earnings, gender, and education}
+How are earnings related to gender and education, and what else could explain these associations? A survey of 1814 US adults (from
+\emph{Regression and Other Stories}); the fits use the 1627 respondents with positive earnings.
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+\item $Y$: \py{earnk}, earnings in \$1000s. Earnings are strongly right-skewed (a few very large values), so we model $\log(\text{earnk})$.
+\item $X_{hispanic},X_{other},X_{white}$: ethnicity dummies, with Black as the baseline.
+\item $X_{male}$ (0/1), $X_{height}$ (inches), $X_{educ}$ (years of education), $X_{age}$ (years).
+\end{itemize}
+\begin{align*}
+\log(\text{earnk})=\beta_0&+\beta_{hispanic}X_{hispanic}+\beta_{other}X_{other}+\beta_{white}X_{white}\\
+&+\beta_{male}X_{male}+\beta_{height}X_{height}+\beta_{educ}X_{educ}+\beta_{age}X_{age}+\epsilon
+\end{align*}
+\begin{lstlisting}[style=output]
+Dep. Variable:              log_earnk   R-squared:                       0.211
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -0.5156      0.496     -1.039      0.299      -1.489       0.458
+hispanic      -0.0355      0.105     -0.337      0.736      -0.242       0.171
+other          0.0363      0.152      0.238      0.812      -0.263       0.335
+white          0.0845      0.067      1.268      0.205      -0.046       0.215
+male           0.4175      0.058      7.222      0.000       0.304       0.531
+height         0.0166      0.007      2.223      0.026       0.002       0.031
+education      0.1189      0.008     14.885      0.000       0.103       0.135
+age            0.0092      0.001      7.724      0.000       0.007       0.012
+\end{lstlisting}
+\textbf{Reading log coefficients.} The log here is the natural log, as in \emph{Regression and Other Stories}. A coefficient $b$ on $\log Y$
+multiplies earnings by $e^b$, and $e^b\approx1+b$ for small $b$ (Section~\ref{sec:ar}, prices vs.\ log prices). So, holding the other
+predictors fixed:
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item each extra year of education goes with about $12\%$ higher earnings ($e^{0.119}\approx1.13$);
+\item men earn about $e^{0.42}\approx1.52$ times as much as women of the same height, education, age, and ethnicity ($b$ is too big here for $1+b$);
+\item an extra inch of height goes with about $1.7\%$ more, and an extra year of age with about $0.9\%$ more;
+\item the ethnicity CIs all contain 0: controlling for the rest, there is no clear ethnicity difference in this sample.
+\end{itemize}
+\textbf{Scaled coefficients} $\hat\beta_j\sigma_j$ put them on one scale: education is the most important ($\approx0.30$), then male ($\approx0.20$)
+and age ($\approx0.16$), with height ($\approx0.06$) and ethnicity near 0. The slides also compare $Y=\text{earnk}$ ($R^2=0.18$) with
+$Y=\log(\text{earnk})$ ($R^2=0.21$), scaling each coefficient by $\sigma_j/\sigma_Y$: the two give nearly the same picture.
+
+\subsection{Leaving out all predictors but education}
+Regress $\log(\text{earnk})$ on education alone: $\hat\beta'_{educ}\approx0.115$, barely different from $\hat\beta_{educ}\approx0.119$. The theorem says
+exactly why. Here $\beta_{educ,j}$ is the slope of each other predictor on education (left arrows), and $\beta_j$ is its coefficient in the full
+model (right arrows):
+\begin{center}
+\begin{tikzpicture}[>={Stealth}, every node/.style={font=\small},
+  var/.style={rounded corners, draw, thick, minimum height=0.6cm, minimum width=1.5cm, inner sep=2pt}]
+\node[var] (E) at (0,0) {education};
+\node[var] (Y) at (11.5,0) {$Y$ (log earnk)};
+\foreach \n/\y/\lft/\rgt in {hispanic/6.0/{-0.005}/{-0.036}, other/5.0/0.002/0.036, white/4.0/0.013/0.085,
+                        male/3.0/0.005/0.42, height/2.0/0.16/0.017, age/1.0/{-1.1}/0.009}{
+  \node[var] (\n) at (5.4,\y) {\n};
+  \draw[->, thick, gray!70!black] (E) -- node[pos=0.78, above, sloped, font=\scriptsize] {$\lft$} (\n);
+  \draw[->, thick, dataclr] (\n) -- node[pos=0.18, above, sloped, font=\scriptsize] {$\rgt$} (Y);
+}
+\draw[->, very thick, red] (E) -- node[below, font=\scriptsize] {$\beta_{educ}\approx0.119$ (direct)} (Y);
+\end{tikzpicture}
+\end{center}
+\[
+\underbrace{0.115}_{\beta'_{educ}}\approx\underbrace{0.119}_{\beta_{educ}}+\underbrace{0.001}_{\text{ethnicity (3 dummies)}}
++\underbrace{0.42\times0.005}_{\text{male}\,\approx\,0.002}+\underbrace{0.017\times0.16}_{\text{height}\,\approx\,0.003}
++\underbrace{0.009\times(-1.1)}_{\text{age}\,\approx\,-0.010}.
+\]
+(The ethnicity term is $(-0.036)(-0.005)+(0.036)(0.002)+(0.085)(0.013)\approx0.001$.) Reading the arrows: one more year of education goes with
+being $0.16$ inches taller and $1.1$ years \emph{younger}, on average. The detours mostly cancel. The only sizable one is age, and it is negative:
+age raises earnings, but more-educated people tend to be younger, so leaving age out makes education look slightly \emph{less} valuable.
+
+\textbf{Why are more-educated people younger?} Plotting education and earnings against age, older respondents have less education on
+average: they are from earlier generations, when less schooling was typical (the youngest are partly still in school). Earnings rise with age
+up to middle age and then level off.
+
+\textbf{Age as a categorical predictor.} Replacing age by one dummy per decade (baseline 18--29; 70 and over pooled), keeping the other
+predictors, the scaled age coefficients rise from the 30s to the 40s and then fall in the 50s and 60s. The effect of age is not a straight line,
+which the single slope $\beta_{age}$ cannot show. The education coefficient barely changes.
+
+\subsection{Revisiting the elections: past vote only}
+\begin{lstlisting}[style=output]
+Dep. Variable:                   vote   R-squared:                       0.834
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.0382      0.012      3.311      0.001       0.016       0.061
+past_vote      0.9182      0.020     46.584      0.000       0.879       0.957
+\end{lstlisting}
+With past vote alone the slope is $0.92$, versus $0.53$ in the model with the two incumbency dummies. The left-out predictors are $X_{dem}$ and
+$X_{rep}$; their slopes on past vote are $\beta_{past,dem}\approx2.13$ and $\beta_{past,rep}\approx-1.99$ (a district with 10 points higher past
+vote is about 21 points more likely to have a Democratic incumbent, and about 20 points less likely to have a Republican one).
+\begin{center}
+\begin{tikzpicture}[>={Stealth}, every node/.style={font=\small},
+  var/.style={rounded corners, draw, thick, minimum height=0.6cm, inner sep=3pt}]
+\node[var] (P) at (0,0) {past vote};
+\node[var] (Y) at (8,0) {$Y$ (vote)};
+\node[var] (D) at (4,1.4) {dem inc};
+\node[var] (R) at (4,-1.4) {rep inc};
+\draw[->, thick, gray!70!black] (P) -- node[above, sloped, font=\scriptsize] {$\beta_{past,dem}\approx2.13$} (D);
+\draw[->, thick, gray!70!black] (P) -- node[below, sloped, font=\scriptsize] {$\beta_{past,rep}\approx-1.99$} (R);
+\draw[->, thick, dataclr] (D) -- node[above, sloped, font=\scriptsize] {$\beta_{dem}\approx0.076$} (Y);
+\draw[->, thick, dataclr] (R) -- node[below, sloped, font=\scriptsize] {$\beta_{rep}\approx-0.115$} (Y);
+\draw[->, very thick, red] (P) -- node[above, font=\scriptsize] {$\beta_{past}\approx0.53$} (Y);
+\end{tikzpicture}
+\end{center}
+\[
+\underbrace{0.92}_{\beta'_{past}}\approx\underbrace{0.53}_{\beta_{past}}+\underbrace{0.076\times2.13}_{\beta_{dem}\beta_{past,dem}\,\approx\,0.16}
++\underbrace{(-0.115)\times(-1.99)}_{\beta_{rep}\beta_{past,rep}\,\approx\,0.23}.
+\]
+Both detours are positive. Districts with a high past vote tend to have Democratic incumbents (who add vote) and not Republican incumbents
+(who would subtract vote). Without the dummies, past vote gets credit for the incumbency advantage.
+
+\subsection{Revisiting children's test scores: mother's age}
+Add $X_{age}$ (\py{mom\_age}), the mother's age when the child was born.
+\begin{lstlisting}[style=output]
+Dep. Variable:              kid_score   R-squared:                       0.008
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         70.9569      8.307      8.542      0.000      54.631      87.283
+mom_age        0.6952      0.362      1.920      0.055      -0.016       1.407
+\end{lstlisting}
+\begin{lstlisting}[style=output]
+Dep. Variable:              kid_score   R-squared:                       0.215
+==============================================================================
+                 coef    std err          t      P>|t|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         20.9847      9.130      2.298      0.022       3.039      38.930
+mom_hs         5.6472      2.258      2.501      0.013       1.210      10.085
+mom_iq         0.5625      0.061      9.276      0.000       0.443       0.682
+mom_age        0.2248      0.331      0.680      0.497      -0.425       0.875
+\end{lstlisting}
+And the single-predictor fits of the other two predictors on mother's age:
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+response & slope on \py{mom\_age} (se) & 95\% CI & $R^2$\\\midrule
+\py{mom\_hs} & $\hat\beta_{age,hs}=0.0326$ ($0.007$) & $[0.019,0.047]$ & 0.046\\
+\py{mom\_iq} & $\hat\beta_{age,iq}=0.5087$ ($0.266$) & $[-0.014,1.032]$ & 0.008\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{examplebox}[title={Question (10/21): interpret mom age; why does adding it change so little?}]
+\textbf{Interpret.} \emph{Alone:} each extra year of the mother's age goes with $0.70$ more points on average ($p=0.055$; the CI just includes 0,
+so the evidence is weak). \emph{With mom hs and mom iq:} comparing mothers with the same schooling and IQ, each year goes with only $0.22$
+points, with a CI $[-0.43,0.88]$ that contains 0. There is no evidence of an association once schooling and IQ are controlled for.
+
+\textbf{Why so little changes.} Without age, the coefficients were $5.95$ and $0.564$ with $R^2=0.214$; with age they are $5.65$ and $0.5625$
+with $R^2=0.215$. By OVB, the change in another predictor's coefficient from leaving out age is $\beta_{age}$ times how much age moves with that
+predictor. Here $\beta_{age}$ is small ($0.22$), and age is only weakly associated with the other predictors ($R^2$ of $0.05$ and $0.01$ above), so
+the changes are tiny. Age carries almost no information about the score beyond what schooling and IQ already provide.
+
+\textbf{OVB for the single slope.} Leaving out both hs and iq:
+\[
+\underbrace{0.70}_{\beta'_{age}}\approx\underbrace{0.22}_{\beta_{age}}+\underbrace{0.0326\times5.65}_{\beta_{age,hs}\beta_{hs}\,\approx\,0.18}
++\underbrace{0.509\times0.5625}_{\beta_{age,iq}\beta_{iq}\,\approx\,0.29}\quad(=0.695).
+\]
+Most of the single-predictor association runs through schooling and IQ: older mothers are a bit more likely to have finished high school and
+have slightly higher IQs, and those are what go with higher scores.
+\end{examplebox}
+\begin{center}
+\begin{tikzpicture}[>={Stealth}, every node/.style={font=\small},
+  var/.style={rounded corners, draw, thick, minimum height=0.6cm, inner sep=3pt}]
+\node[var] (A) at (0,0) {mom age};
+\node[var] (Y) at (8,0) {$Y$ (kid score)};
+\node[var] (H) at (4,1.4) {mom hs};
+\node[var] (I) at (4,-1.4) {mom iq};
+\draw[->, thick, gray!70!black] (A) -- node[above, sloped, font=\scriptsize] {$\beta_{age,hs}\approx0.03$ ($R^2\approx0.05$)} (H);
+\draw[->, thick, gray!70!black] (A) -- node[below, sloped, font=\scriptsize] {$\beta_{age,iq}\approx0.5$ ($R^2\approx0.01$)} (I);
+\draw[->, thick, dataclr] (H) -- node[above, sloped, font=\scriptsize] {$\beta_{hs}\approx5.6$} (Y);
+\draw[->, thick, dataclr] (I) -- node[below, sloped, font=\scriptsize] {$\beta_{iq}\approx0.6$} (Y);
+\draw[->, very thick, red] (A) -- node[above, font=\scriptsize] {$\beta_{age}\approx0.2$} (Y);
+\end{tikzpicture}
+\end{center}
+
+%==========================================================
+\section{Correlated predictors and the sample distribution (Lecture 16, Unit 4.3--4.4)}\label{sec:collin}
+%==========================================================
+\subsection{Example: body fat, weight, and hip size}
+Percent body fat (from underwater weighing) of 252 men, with weight (lb) and hip circumference (cm). Each predictor alone is strongly
+correlated with body fat ($r=0.61$ for weight, $0.63$ for hip), but weight and hip are even more correlated with each other: $r=0.94$.
+\begin{center}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+model & weight coef (se) & hip coef (se) & $p$ (weight) & $R^2$\\\midrule
+weight only & $0.1744$ ($0.014$) & --- & $<0.001$ & 0.375\\
+hip only & --- & $0.7303$ ($0.058$) & --- & 0.391\\
+both & $0.0600$ ($0.041$) & $0.4988$ ($0.170$) & $0.149$ & 0.396\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{examplebox}[title={Question (10/21): why does the se of weight triple, and weight stop being significant?}]
+Weight and hip size are nearly collinear ($r=0.94$): heavier men almost always have bigger hips. In the two-predictor model the data must
+separate ``more weight, same hips'' from ``bigger hips, same weight'', and there are few men who differ in one but not the other. Many
+combinations of the two coefficients fit almost equally well, so each one is poorly determined. The se of weight goes $0.014\to0.041$ (ratio
+$2.9$) and the se of hip $0.058\to0.170$ (ratio $2.9$). That is exactly $1/\sqrt{1-0.94^2}=1/\sqrt{0.116}\approx2.9$ (keybox below).
+With $\hat T=0.060/0.041=1.45$, weight is no longer significant, and $R^2$ barely rises ($0.391\to0.396$): weight adds little beyond hip.
+The weight coefficient also shrinks, $0.174\to0.060$, by OVB (alone, weight gets credit for hip size).
+\end{examplebox}
+
+\begin{keybox}[title={Adding predictors inflates the standard error}]
+Let $R_j^2$ be the $R^2$ from regressing $X_j$ on the added predictors. Adding them multiplies the standard error of $\hat\beta_j$ by about
+\[
+\frac{\se(\hat\beta_j)\ \text{with the others}}{\se(\hat\beta_j)\ \text{alone}}\approx\frac{1}{\sqrt{1-R_j^2}},
+\]
+times a factor $\hat\sigma_\epsilon(\text{with})/\hat\sigma_\epsilon(\text{alone})\le1$ if the added predictors also explain $Y$. With one added
+predictor, $R_j^2=\rho_{1,2}^2$ (derived below).
+\inwords{the more the other predictors can predict $X_j$, the less independent information about $X_j$'s effect is left, and the wider its CI.}
+\end{keybox}
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=10cm, height=5.6cm, xmin=0, xmax=1, ymin=0.8, ymax=3.2, xlabel={$R_j^2$ of the predictor on the added predictors},
+  ylabel={se ratio (with / alone)}, tick label style={font=\scriptsize}, label style={font=\small},
+  legend style={font=\scriptsize, at={(0.02,0.98)}, anchor=north west}]
+\addplot[black, dashed, thick, domain=0:0.9, samples=80] {1/sqrt(1-x)};
+\addplot[only marks, mark=o, thick] coordinates {(0.24,0.91) (0.24,1.16)};
+\addplot[only marks, mark=triangle, thick, dataclr] coordinates {(0.74,1.75) (0.74,1.60)};
+\addplot[only marks, mark=square*, red] coordinates {(0.884,2.93) (0.884,2.93)};
+\addplot[gray] coordinates {(0,1) (1,1)};
+\legend{$1/\sqrt{1-R_j^2}$, crime, elections, body fat}
+\end{axis}
+\end{tikzpicture}
+\caption{Each point is one coefficient from these notes: its se with the other predictor divided by its se alone (crime: Section~\ref{sec:ovb};
+elections: below; body fat: above). The se grows when the added predictor is correlated with $X_j$ (body fat, elections); when it is not, the
+ratio stays near 1. Points fall a little below the curve because $\hat\sigma_\epsilon$ shrinks.}
+\end{figure}
+
+\subsection{The covariance system for two predictors (Unit 4.3)}
+Take $Y=\beta_1X_1+\beta_2X_2+\epsilon$ with mean-zero predictors and no intercept. Exactly as in the OVB proof, covariance with each predictor gives
+\begin{align*}
+\Cov(X_1,Y)&=\beta_1\sigma_{X_1}^2+\beta_2\Cov(X_1,X_2),\\
+\Cov(X_2,Y)&=\beta_1\Cov(X_1,X_2)+\beta_2\sigma_{X_2}^2.
+\end{align*}
+Dividing the first by $\sigma_{X_1}^2$ is the OVB formula $\beta'_1=\beta_1+\beta_2\beta_{1,2}$. In matrix form, with the \textbf{covariance matrix} $\Sigma$:
+\[
+\begin{bmatrix}\Cov(X_1,Y)\\\Cov(X_2,Y)\end{bmatrix}=\Sigma\begin{bmatrix}\beta_1\\\beta_2\end{bmatrix},\qquad
+\Sigma=\begin{bmatrix}\sigma_{X_1}^2&\Cov(X_1,X_2)\\\Cov(X_1,X_2)&\sigma_{X_2}^2\end{bmatrix},
+\]
+\[
+\Sigma^{-1}=\frac{1}{\sigma_{X_1}^2\sigma_{X_2}^2-\Cov(X_1,X_2)^2}\begin{bmatrix}\sigma_{X_2}^2&-\Cov(X_1,X_2)\\-\Cov(X_1,X_2)&\sigma_{X_1}^2\end{bmatrix}.
+\]
+(For a $2\times2$ matrix $\begin{bmatrix}a&b\\b&d\end{bmatrix}$ the inverse is $\frac{1}{ad-b^2}\begin{bmatrix}d&-b\\-b&a\end{bmatrix}$: swap the diagonal, negate
+the off-diagonal, divide by $ad-b^2$.) Solving, $\beta=\Sigma^{-1}\big(\Cov(X_1,Y),\Cov(X_2,Y)\big)$:
+\[
+\beta_1=\frac{\Cov(X_1,Y)\,\sigma_{X_2}^2-\Cov(X_2,Y)\Cov(X_1,X_2)}{\sigma_{X_1}^2\sigma_{X_2}^2-\Cov(X_1,X_2)^2}
+\ \overset{\text{standardized}}{=}\ \frac{\rho_1-\rho_{1,2}\,\rho_2}{1-\rho_{1,2}^2},
+\]
+where $\rho_k=\corr(X_k,Y)$ and $\rho_{1,2}=\corr(X_1,X_2)$. If the predictors are uncorrelated ($\rho_{1,2}=0$), $\beta_1=\rho_1$: the
+single-predictor slope. This compares with $\beta'_1=\Cov(X,Y)/\Var(X)$: $\Sigma^{-1}$ plays the role of $1/\Var(X)$. In practice the same
+formula with sample covariances gives the least squares estimates (what \py{sm.OLS} computes).
+
+\subsection{Why correlated predictors are hard to separate}
+Take two \emph{standardized} predictors with correlation $\rho_{1,2}$, $Y=\beta_1X_1+\beta_2X_2+\epsilon$. With one predictor,
+$\se(\hat\beta_1)=\sigma_\epsilon/(\sigma_X\sqrt N)$. With two, we need the \emph{joint} sample distribution of $(\hat\beta_1,\hat\beta_2)$: how the pair
+varies together over replicates.
+
+\textbf{Extreme case, $X_1\approx X_2$.} Then $Y\approx(\beta_1+\beta_2)X_1+\epsilon$. The data pin down the sum $\beta_1+\beta_2$, but not $\beta_1$ and
+$\beta_2$ separately: raising $\hat\beta_1$ and lowering $\hat\beta_2$ by the same amount fits almost equally well.
+
+\begin{examplebox}[title={Question (10/21): a new dataset gives a larger $\hat\beta_1$. What do you expect for $\hat\beta_2$?}]
+Smaller. The sum $\hat\beta_1+\hat\beta_2$ stays close to $\beta_1+\beta_2$ in every replicate, so when $\hat\beta_1$ comes out high, $\hat\beta_2$ must come out
+low to compensate. Across replicates the two estimates are \emph{negatively} correlated: $\corr(\hat\beta_1,\hat\beta_2)=-\rho_{1,2}$ (derived below).
+\end{examplebox}
+
+\textbf{The regression plane wobbles.} With two predictors the fitted model is a plane over the $(x_1,x_2)$ plane. If $\rho_{1,2}=0$ the points
+cover the plane and fitted planes from different datasets look alike. If $\rho_{1,2}=0.95$ the points lie near the line $x_1=x_2$, so the plane can
+tilt about that line without changing the fit much, and fitted planes from different datasets tilt in different directions.
+
+\textbf{Two views (Unit 4.4).} Look at the data along $u=(X_1+X_2)/\sqrt2$ (the direction where the predictors move together) and
+$v=(X_1-X_2)/\sqrt2$ (where they disagree). Then
+\[
+\beta_1X_1+\beta_2X_2=\frac{\beta_1+\beta_2}{\sqrt2}\,u+\frac{\beta_1-\beta_2}{\sqrt2}\,v,\qquad
+\Var(u)=1+\rho_{1,2},\quad\Var(v)=1-\rho_{1,2},\quad\Cov(u,v)=0.
+\]
+($\Var(u)=\frac12(1+1+2\rho_{1,2})$; $\Cov(u,v)=\frac12(\Var X_1-\Var X_2)=0$.) Since $u$ and $v$ are uncorrelated, each slope behaves like a
+single-predictor slope, with se $\sigma_\epsilon/(\sigma\sqrt N)$ for that direction's SD $\sigma$. For $\rho_{1,2}$ near 1 the data are spread out along $u$, so the sum
+$\beta_1+\beta_2$ is well determined. They are bunched up in $v$ ($\Var v\approx0$), so the difference $\beta_1-\beta_2$ is not. For $\rho_{1,2}$ near $-1$
+it is the other way around; for $\rho_{1,2}=0$ the two views look the same.
+
+\begin{keybox}[title={Sample distribution with two predictors}]
+If the covariance matrix $\Sigma$ of the predictors is known, the pair $(\hat\beta_1,\hat\beta_2)$ is (approximately) jointly Normal around the truth,
+with variances and covariance given by
+\[
+\begin{bmatrix}\Var(\hat\beta_1)&\Cov(\hat\beta_1,\hat\beta_2)\\\Cov(\hat\beta_1,\hat\beta_2)&\Var(\hat\beta_2)\end{bmatrix}=\frac{\sigma_\epsilon^2}{N}\,\Sigma^{-1}.
+\]
+For standardized predictors, $\Sigma=\begin{bmatrix}1&\rho_{1,2}\\\rho_{1,2}&1\end{bmatrix}$ and $\Sigma^{-1}=\dfrac{1}{1-\rho_{1,2}^2}\begin{bmatrix}1&-\rho_{1,2}\\-\rho_{1,2}&1\end{bmatrix}$, so
+\[
+\se(\hat\beta_1)=\frac{\sigma_\epsilon}{\sqrt{N(1-\rho_{1,2}^2)}},\qquad
+\corr(\hat\beta_1,\hat\beta_2)=\frac{-\rho_{1,2}/(1-\rho_{1,2}^2)}{1/(1-\rho_{1,2}^2)}=-\rho_{1,2},
+\]
+\[
+\se(\hat\beta_1+\hat\beta_2)=\sigma_\epsilon\sqrt{\frac{2}{N(1+\rho_{1,2})}}.
+\]
+With $\Sigma=1$ (one standardized predictor) this is the old $\se=\sigma_\epsilon/\sqrt N$. For unstandardized $X_1$, $\se(\hat\beta_1)=\sigma_\epsilon/\big(\sigma_{X_1}\sqrt{N(1-\rho_{1,2}^2)}\big)$.
+\inwords{correlated predictors make each coefficient less precise by $1/\sqrt{1-\rho_{1,2}^2}$ and make the two estimates move in opposite directions; their sum stays precise.}
+\end{keybox}
+For the sum: $\Var(\hat\beta_1+\hat\beta_2)=\Var\hat\beta_1+\Var\hat\beta_2+2\Cov=\frac{\sigma_\epsilon^2}{N}\cdot\frac{2-2\rho_{1,2}}{1-\rho_{1,2}^2}=\frac{2\sigma_\epsilon^2}{N(1+\rho_{1,2})}$
+(using $1-\rho^2=(1-\rho)(1+\rho)$). It gets \emph{smaller} as $\rho_{1,2}\to1$.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=3 by 1, horizontal sep=1.6cm}, width=5.4cm, height=5cm,
+  tick label style={font=\scriptsize}, label style={font=\small}, title style={font=\small}]
+\nextgroupplot[xmin=0.1, xmax=1.9, ymin=-0.4, ymax=1.4, xlabel={$\hat\beta_1$}, ylabel={$\hat\beta_2$}, title={95\% regions},
+  legend style={font=\tiny, at={(0.98,0.98)}, anchor=north east}]
+\addplot[dataclr, very thick, domain=0:360, samples=90] ({1+0.245*cos(x)}, {0.5+0.245*sin(x)});
+\addplot[red, very thick, domain=0:360, samples=90] ({1+(1.096*cos(x)+0.175*sin(x))/sqrt(2)}, {0.5+(-1.096*cos(x)+0.175*sin(x))/sqrt(2)});
+\addplot[black, dashed, domain=0.1:1.9] {1.5-x};
+\addplot[only marks, mark=*, mark size=1.6pt] coordinates {(1,0.5)};
+\legend{$\rho_{1,2}=0$, $\rho_{1,2}=0.95$}
+\nextgroupplot[xmin=0, xmax=1, ymin=-1.05, ymax=0.05, xlabel={$\rho_{1,2}$}, title={$\corr(\hat\beta_1,\hat\beta_2)$}]
+\addplot[red, very thick, domain=0:1] {-x};
+\nextgroupplot[xmin=0, xmax=1, ymin=0, ymax=0.6, xlabel={$\rho_{1,2}$}, title={$\se(\hat\beta_1)$}]
+\addplot[red, very thick, domain=0:0.985, samples=100] {1/sqrt(100*(1-x^2))};
+\addplot[gray, dashed] coordinates {(0,0.1) (1,0.1)};
+\end{groupplot}
+\end{tikzpicture}
+\caption{The slides' simulation model $Y=X_1+0.5X_2+\epsilon$, $\sigma_\epsilon=1$, $N=100$, drawn from the formulas. Left: the regions holding about
+95\% of the estimates $(\hat\beta_1,\hat\beta_2)$ over replicates; the dot is the truth $(1,0.5)$ and the dashed line is $\hat\beta_1+\hat\beta_2=1.5$. With
+$\rho_{1,2}=0.95$ the cloud stretches along that line. Middle and right: the correlation of the estimates is $-\rho_{1,2}$, and the se grows like
+$1/\sqrt{1-\rho_{1,2}^2}$. At $\rho_{1,2}=0.95$, $\se(\hat\beta_1)=1/\sqrt{100\times0.0975}=0.32$, about 3 times the $0.10$ at $\rho_{1,2}=0$, but
+$\se(\hat\beta_1+\hat\beta_2)=\sqrt{2/195}=0.10$ is even smaller than the $\sqrt{2/100}=0.14$ at $\rho_{1,2}=0$.}
+\end{figure}
+
+\subsection{Real example: incumbency and past vote}
+In the election data, $\corr(\text{past vote},\text{inc})=0.86$: incumbents mostly hold districts that already voted for their party.
+\begin{center}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+ & inc only & past vote only & both\\\midrule
+$\hat\beta_{inc}$ (se) & 0.191 (0.004) & --- & 0.096 (0.007)\\
+$\hat\beta_{past}$ (se) & --- & 0.918 (0.020) & 0.521 (0.032)\\
+\bottomrule
+\end{tabular}
+\end{center}
+In the model with both, the estimated $\corr(\hat\beta_{past},\hat\beta_{inc})=-0.86$, exactly $-\rho_{1,2}$.
+
+\begin{examplebox}[title={Question (10/21): why are both se's larger with both predictors? Why would a world of safe seats be a problem?}]
+\textbf{Larger se's.} The two predictors are strongly correlated, so the data contain few districts where incumbency and past vote disagree,
+and those are the only districts that separate the two effects. The inflation factor is $1/\sqrt{1-0.86^2}=1/\sqrt{0.26}\approx1.96$; the observed
+ratios are $0.007/0.004\approx1.75$ (inc) and $0.032/0.020=1.6$ (past). They are a bit smaller because $\hat\sigma_\epsilon$ also drops when the second
+predictor is added ($R^2$ goes up to $0.887$).
+
+\textbf{Safe seats.} If almost every incumbent held a safe seat (Democratic incumbents only in strongly Democratic districts, and so on), inc
+would be almost a function of past vote: $\rho_{1,2}\approx1$. Then $1/\sqrt{1-\rho_{1,2}^2}$ blows up, and the data could not tell whether a high vote
+comes from the district's past or from the incumbent. Only the combined effect would be estimable. The districts that identify the incumbency
+advantage are the open seats and the ones where the incumbent's party and the district's lean disagree.
+\end{examplebox}
+
+%==========================================================
 % Formula sheet
 %==========================================================
 \clearpage
@@ -1696,14 +2293,14 @@ Yesterday's effect gets credited to the day before yesterday.
 \pagestyle{empty}
 \newcommand{\csh}[1]{\par\vspace{5pt}{\color{accent}\bfseries #1}\vspace{-1pt}\par{\color{accent}\hrule height 0.6pt}\vspace{2pt}\par}
 \newtcolorbox{cbox}{colback=tipbg, colframe=orange!70!black, boxrule=0.5pt, arc=1.5pt,
-  left=3pt, right=3pt, top=2pt, bottom=2pt, before skip=3pt, after skip=3pt}
+  left=3pt, right=3pt, top=2pt, bottom=2pt, before skip=3pt, after skip=3pt, before upper=\raggedright}
 \begingroup
-\footnotesize
+\scriptsize
 \setlength{\parskip}{2.5pt}
 \setlength{\tabcolsep}{4pt}
-{\Large\bfseries\color{accent} Math 50 Lectures 8--13 \textperiodcentered\ Formula sheet}\hfill{\small Unit 2.4, Unit 3, Unit 4.1--4.2}\par
+{\Large\bfseries\color{accent} Math 50 Midterm 2 \textperiodcentered\ Formula sheet}\hfill{\small Lectures 8--16 \textperiodcentered\ Unit 2.4, Unit 3, Unit 4}\par
 {\color{accent}\hrule height 1pt}\vspace{2pt}
-\begin{multicols}{3}
+\begin{multicols}{4}
 \raggedright
 
 \csh{Algebra}
@@ -1732,8 +2329,8 @@ Laplace $\hat q_L=\frac{S+1}{N+2}$: bias $\frac{1-2q}{N+2}$, var $\frac{Nq(1-q)}
 $\hat\sigma_0^2=\frac1N\sum(Y_i-\Ybar)^2$: $\E=\frac{N-1}N\sigma^2$. Bessel: $\hat\sigma^2=\frac1{N-1}\sum(Y_i-\Ybar)^2$ unbiased.\\
 Key identity: $\sum(Y_i-\Ybar)^2=\sum(Y_i-\mu)^2-N(\Ybar-\mu)^2$.
 
-\columnbreak
 
+\columnbreak
 \csh{CIs and tests (3.3, 3.6)}
 \begin{cbox}
 95\% CI: $\hat\theta\pm1.96\,\se(\hat\theta)$ \ ($t$: 2.78/2.26/2.05 for $N$=5/10/30).\\
@@ -1757,7 +2354,6 @@ $\hat\beta_1\approx\Norm\!\Big(\beta_1,\dfrac{\sigma_\epsilon^2}{N\sigma_X^2}\Bi
 \py{np.cov(x,y)[0,1]/np.cov(x,y)[0,0]} $=\hat\beta_1$.\\
 \py{2*(1-norm.cdf(np.abs(T)))} $=p_v$.
 
-\columnbreak
 
 \csh{AR(1) (3.5)}
 $Y_t=\beta_0+\rho Y_{t-1}+\epsilon_t$; stationary: $\beta_1=\rho$, $\beta_0=(1-\rho)\mu$,\\
@@ -1778,13 +2374,39 @@ $R^2$ never decreases with more predictors; $R^2$'s do not add.
 \end{cbox}
 $\beta_{1,2}\,\beta_{2,1}=\rho_{12}^2$.\\
 Simpson's paradox = OVB with a confounder strong enough to flip the sign.\\
-AR(1) on two lags: $\beta_{lag1}=\rho$, $\beta_{lag2}=0$; on lag 2 alone: $\rho^2$.
+AR(1) on two lags: $\beta_{lag1}=\rho$, $\beta_{lag2}=0$; on lag $k$ alone: $\rho^k$.\\
+AR(2) $0.5,0.3$ on lag 1 alone: $\rho_1=0.5+0.3\rho_1\Rightarrow\rho_1=5/7$.
+
+\csh{Many predictors, categorical (4.5)}
+\begin{cbox}
+$\beta'_1=\beta_1+\sum_{j\ge2}\beta_j\beta_{1,j}$ \ (slides: $\beta'_{1,j}$) = sum over all paths $X_1\to Y$.
+\end{cbox}
+$m$ categories $\to$ $m-1$ dummies; coef = category $-$ baseline (others fixed).\\
+Category $a$ vs.\ $b$: $\beta_a-\beta_b$. All $m$ + intercept: collinear.\\
+Linear $X_{inc}\in\{-1,0,1\}$ = dummies with $\beta_{dem}=-\beta_{rep}=\beta_{inc}$.\\
+Log response: coef $b$ $\Rightarrow$ $Y\times e^b\approx(1+b)$.
+
+\columnbreak
+\csh{Collinearity (4.3--4.4)}
+$\Sigma\beta=(\Cov(X_1,Y),\Cov(X_2,Y))$; $\begin{bmatrix}a&b\\b&d\end{bmatrix}^{-1}=\frac{1}{ad-b^2}\begin{bmatrix}d&-b\\-b&a\end{bmatrix}$.\\
+Standardized: $\beta_1=\dfrac{\rho_1-\rho_{1,2}\rho_2}{1-\rho_{1,2}^2}$.
+\begin{cbox}
+$\Var/\Cov$ of $(\hat\beta_1,\hat\beta_2)=\frac{\sigma_\epsilon^2}{N}\Sigma^{-1}$; standardized:\\
+$\se(\hat\beta_1)=\dfrac{\sigma_\epsilon}{\sqrt{N(1-\rho_{1,2}^2)}}$, \ $\corr(\hat\beta_1,\hat\beta_2)=-\rho_{1,2}$,\\
+$\se(\hat\beta_1+\hat\beta_2)=\sigma_\epsilon\sqrt{2/(N(1+\rho_{1,2}))}$.
+\end{cbox}
+se inflation $\approx1/\sqrt{1-R_j^2}$. \ $u=\frac{X_1+X_2}{\sqrt2}$: $\Var=1+\rho$; $v$: $1-\rho$.
 
 \csh{Worked numbers}
 Graders: $\se\approx1.2$--$1.36$, $\hat T\approx0.4$, $p_v\approx0.7$.\\
 Test scores: $11.8=5.95+0.56\times10.3$; scaled $2.4$ vs.\ $8.4$.\\
 Jeter: $-0.006+0.067\times0.670=0.039$.\\
-Crime: $\hat\beta_{pov,single}=0.565$, $\hat\rho=0.49$.
+Crime: $\hat\beta_{pov,single}=0.565$, $\hat\rho=0.49$.\\
+Incumbency: $0.19=0.096+0.52\times0.18$; scaled $0.104$ vs.\ $0.092$.\\
+Past vote: $0.92\approx0.53+0.076(2.13)+(-0.115)(-1.99)$.\\
+Education: $0.115\approx0.119+0.001+0.002+0.003-0.010$.\\
+Mom age: $0.70\approx0.22+0.03(5.6)+0.5(0.56)$.\\
+Body fat: $r=0.94$, se $\times1/\sqrt{1-0.94^2}=2.9$.
 
 \csh{Symbol key (full glossary: p.~\pageref{sec:glossary})}
 $\hat\theta$ estimate from data \ $\Ybar$ sample average \ $\beta'$ coefficient with the predictor alone\\
