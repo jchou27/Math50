@@ -1,0 +1,716 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs,enumitem,xcolor,fancyhdr,array,longtable}
+\usepackage[most]{tcolorbox}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{accent}{HTML}{1F4E79}
+\definecolor{tipbg}{HTML}{FFF6DD}
+\definecolor{exbg}{HTML}{EEF6EE}
+\definecolor{methodclr}{HTML}{6A3D9A}
+
+\newtcolorbox{keybox}[1][]{colback=accent!6, colframe=accent, boxrule=0.6pt,
+  arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt, fonttitle=\bfseries, #1}
+\newtcolorbox{tipbox}[1][]{colback=tipbg, colframe=orange!70!black, boxrule=0.6pt,
+  arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt, fonttitle=\bfseries, #1}
+\newtcolorbox{examplebox}[1][]{colback=exbg, colframe=green!40!black, boxrule=0.6pt,
+  arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt, fonttitle=\bfseries, breakable, #1}
+\newtcolorbox{methodbox}[1][]{colback=methodclr!5, colframe=methodclr, boxrule=0.6pt,
+  arc=2pt, left=6pt, right=6pt, top=4pt, bottom=4pt, fonttitle=\bfseries, title={Method}, #1}
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{var}}
+\newcommand{\Cov}{\operatorname{cov}}
+\newcommand{\corr}{\operatorname{corr}}
+\newcommand{\se}{\operatorname{se}}
+\newcommand{\MSE}{\operatorname{MSE}}
+\newcommand{\bias}{\operatorname{bias}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\given}{\mid}
+\newcommand{\Bern}{\text{Bernoulli}}
+\newcommand{\Norm}{\text{Normal}}
+\newcommand{\SSR}{\mathrm{SSR}}
+\newcommand{\SST}{\mathrm{SST}}
+\newcommand{\Ybar}{\overline{Y}}
+\newcommand{\Xbar}{\overline{X}}
+\newcommand{\why}[1]{&&\text{\small\color{gray}(#1)}}
+% move tags, e.g. \mv{3}
+\newcommand{\mv}[1]{\tcbox[on line, colback=methodclr, colframe=methodclr, coltext=white, boxsep=0pt,
+  left=2pt, right=2pt, top=1pt, bottom=1pt, arc=1.5pt]{\sffamily\scriptsize\bfseries M#1}}
+\newcommand{\goal}[1]{\textbf{Goal:} #1\par}
+\newcommand{\start}[1]{\textbf{Start from:} #1\par}
+\newcommand{\moves}[1]{\textbf{Moves:} #1\par}
+
+\setlength{\parindent}{0pt}
+\emergencystretch=3em
+\setlength{\parskip}{5pt}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Math 50 -- Midterm 2: deriving the formula sheet}
+\rhead{Unit 2.4, Unit 3, Unit 4}
+\cfoot{\thepage}
+
+\title{\textbf{Math 50 Midterm 2: How to Derive Every Formula on the Sheet}\\[2pt]
+\large A companion to \texttt{midterm2\_formulas.pdf} and \texttt{midterm2\_notes.pdf}}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+\begin{tipbox}[title={How to use this document}]
+Every formula on the formula sheet can be derived from the model equation with a small number of \emph{moves}. Section~\ref{sec:moves}
+lists those moves (M1--M11) and translates each arrow on the formula sheet into a move. Every later derivation starts with a purple
+\textbf{Method} box saying the goal, what to start from, and which moves to use. If you can reproduce the Method box from memory, you can
+usually reproduce the algebra. The full steps follow, with the reason for each step in gray on the right, as in the notes.
+
+Blue boxes hold the final result. Sections marked \emph{(extra)} are not on the sheet itself but come from the notes and use the same
+methods. The last page is a cover-and-recall table: hide the right-hand columns and try to say the method for each formula.
+
+Everything here uses only tools from the Unit 2--4 notes and the lectures (linearity of $\E$, bilinearity of $\Cov$, variance rules, the CLT,
+and sums). Nothing new is introduced.
+\end{tipbox}
+
+\tableofcontents
+
+%==========================================================
+\clearpage
+\section{The moves, and how to read the formula sheet's arrows}\label{sec:moves}
+%==========================================================
+\subsection{The eleven moves}
+\renewcommand{\arraystretch}{1.35}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.9cm}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{11.3cm}@{}}
+\toprule
+& \textbf{Move} & \textbf{What you do / the rule it uses}\\
+\midrule
+\endhead
+\mv{1} & Substitute the model & Replace $Y$ by $\beta_0+\beta_1X_1+\epsilon$ (or the two-predictor version). Almost every population derivation starts here.\\
+\mv{2} & Take $\E[\cdot]$ & Linearity: $\E[aX+bY+c]=a\E X+b\E Y+c$. Use $\E[\epsilon]=0$.\\
+\mv{3} & Take $\Cov(X_1,\cdot)$ & Bilinearity: $\Cov(X_1,aY+bZ+c)=a\Cov(X_1,Y)+b\Cov(X_1,Z)$. Constants drop out. $\Cov(X_1,X_1)=\Var X_1$. $\Cov(X_1,\epsilon)=0$ because the noise is independent of the predictors.\\
+\mv{4} & Take $\Var(\cdot)$ & $\Var(aX+b)=a^2\Var X$. Independent pieces: variances add. In general $\Var(X+Y)=\Var X+\Var Y+2\Cov(X,Y)$.\\
+\mv{5} & Condition & ``Given $X$'' means $X$ is a known constant. $\Var(Y\given X)$ is the variance of whatever is \emph{still random}.\\
+\mv{6} & Rescale / standardize & Divide by standard deviations: $Z=(X-\mu)/\sigma$. Changes units, not shape.\\
+\mv{7} & Average of $N$ iid pieces & $\E[\Ybar]=\mu$, $\Var(\Ybar)=\sigma^2/N$. A sum of independent Normals is Normal; otherwise use the CLT for large $N$.\\
+\mv{8} & Plug in & Replace each expectation by a sample average, $\E[\cdot]\to\frac1N\sum_i$, and $\E X,\E Y$ by $\Xbar,\Ybar$.\\
+\mv{9} & Normal $\to$ probability & Standardize, then use $\P(|Z|<1.96)=0.95$ and $\P(Z<z)=\Phi(z)$.\\
+\mv{10} & Add and subtract & Insert $\pm\mu$ or $\pm\E[\hat\theta]$ inside a square, expand $(a+b)^2$, and show the cross term is zero.\\
+\mv{11} & The sum trick & $\sum_i(X_i-\Xbar)=0$, so $\sum_i c\,(X_i-\Xbar)=0$ for any constant $c$ (including $c=\Ybar$).\\
+\bottomrule
+\end{longtable}
+
+\subsection{Each arrow on the sheet is a move}
+The labels on the arrows of the formula sheet are instructions. Here is what each one means and where it is done below.
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{3.3cm}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{6.2cm}>{\raggedright\arraybackslash}p{1.6cm}@{}}
+\toprule
+\textbf{Arrow label} & \textbf{From $\to$ to} & \textbf{What you actually do} & \textbf{Section}\\
+\midrule
+\endhead
+take $\Cov(X_1,\cdot)$ and $\E[\cdot]$ & one predictor $\to$ coefficients & \mv{1}\,\mv{3} then divide by $\Var X_1$; \mv{1}\,\mv{2} then solve for $\beta_0$ & \ref{sec:beta1}, \ref{sec:beta0}\\
+take $\Var(\cdot)$ & one predictor $\to$ variance & \mv{1}\,\mv{4}, noise independent of $X_1$ & \ref{sec:varY}\\
+rescale by $\sigma_{X_1}/\sigma_Y$ & coefficients $\to$ correlation & \mv{6}: multiply $\beta_1$ by $\sigma_{X_1}/\sigma_Y$ & \ref{sec:rho}\\
+$\Var(Y\given X_1)=\sigma_\epsilon^2$ & variance $\to$ variance explained & \mv{5}: given $X_1$, only $\epsilon$ is random & \ref{sec:condvar}\\
+square & correlation $\to$ variance explained & square $\rho$, use the variance equation & \ref{sec:rho2}\\
+omit $X_2$ & two predictors $\to$ one predictor & the one-predictor slope of the \emph{two}-predictor world is $\beta_1'$ & \ref{sec:ovb}\\
+$\Var(Y\given X_1,X_2)=\sigma_\epsilon^2$ & two predictors $\to$ variance explained & \mv{5} with both predictors known & \ref{sec:two-var}\\
+$\beta_1\to\beta_1'$; $\ \beta_1,\beta_2$ & coefficients / two predictors $\to$ OVB & \mv{1}\,\mv{3} in the two-predictor model & \ref{sec:ovb}\\
+estimate $\beta_1$ from $N$ observations & one predictor $\to$ sample dist.\ of $\hat\beta_1$ & \mv{8} to get $\hat\beta_1$, then \mv{11}\,\mv{2}\,\mv{4} & \ref{sec:ls}\\
+$\hat\theta=\Ybar$ & sample distribution $\to$ sample mean & \mv{7} & \ref{sec:ybar}\\
+$\hat\theta=\hat\beta_1$ & sample distribution $\to$ sample dist.\ of $\hat\beta_1$ & same recipe as $\Ybar$, with weights & \ref{sec:varb1}\\
+(to bias/variance) & sample distribution $\to$ MSE & \mv{10} & \ref{sec:mse}\\
+$\pm1.96\,\se$ & sample distribution $\to$ 95\% CI & \mv{9}, then rearrange the inequality & \ref{sec:ci}\\
+null $\beta_1=0$ & sample dist.\ of $\hat\beta_1$ $\to$ hypothesis test & set $\beta_1=0$, \mv{6}\,\mv{9} & \ref{sec:test}\\
+(CI $\to$ test) & 95\% CI $\to$ hypothesis test & chain of ``if and only if'' steps & \ref{sec:ci-test}\\
+\bottomrule
+\end{longtable}
+
+\begin{keybox}[title={The general recipe for any sample distribution}]
+Whenever you are asked ``what is the sample distribution of $\hat\theta$?'':
+\begin{enumerate}[leftmargin=*,itemsep=1pt,label=\arabic*.]
+\item Write $\hat\theta$ as a (weighted) sum of the data, e.g.\ $\Ybar=\sum_i\frac1NY_i$ or $\hat\beta_1=\sum_i w_iY_i$.
+\item \textbf{Center:} take $\E[\cdot]$ \mv{2}. Compare with $\theta$ to get the bias.
+\item \textbf{Spread:} take $\Var(\cdot)$ \mv{4}; independent data points, so variances add. The square root is $\se(\hat\theta)$.
+\item \textbf{Shape:} a sum of independent Normals is Normal; otherwise the CLT says approximately Normal for large $N$ \mv{7}.
+\end{enumerate}
+\end{keybox}
+
+\begin{tipbox}[title={If you blank on the exam}]
+Write the model equation, then ask which arrow you need: for a \textbf{coefficient}, take $\Cov(X,\cdot)$; for an \textbf{intercept} or mean, take
+$\E$; for a \textbf{spread}, take $\Var$ (squared coefficients, independent pieces add); for anything ``\textbf{given} $X$'', freeze $X$ as a constant;
+for anything \textbf{estimated}, write it as a weighted sum of data and do center, spread, shape.
+\end{tipbox}
+
+%==========================================================
+\clearpage
+\section{One predictor: the population formulas}\label{sec:onepred}
+%==========================================================
+Throughout this section the model is
+\[
+Y=\beta_0+\beta_1X_1+\epsilon,\qquad \epsilon\sim\Norm(0,\sigma_\epsilon^2),\qquad \epsilon \text{ independent of } X_1 .
+\]
+Write $\sigma_{X_1}^2=\Var(X_1)$ and $\sigma_Y^2=\Var(Y)$. These are statements about the true (population) quantities, not data.
+
+\subsection{The slope: $\beta_1=\Cov(X_1,Y)/\sigma_{X_1}^2$}\label{sec:beta1}
+\begin{methodbox}
+\goal{an expression for $\beta_1$ using only $X_1$ and $Y$.}
+\start{the model equation.}
+\moves{\mv{1} substitute the model inside $\Cov(X_1,Y)$; \mv{3} split it with bilinearity; solve for $\beta_1$.}
+\end{methodbox}
+\begin{align*}
+\Cov(X_1,Y)&=\Cov(X_1,\ \beta_0+\beta_1X_1+\epsilon) \why{substitute the model}\\
+&=\beta_1\Cov(X_1,X_1)+\Cov(X_1,\epsilon) \why{bilinearity; the constant $\beta_0$ drops out}\\
+&=\beta_1\sigma_{X_1}^2+0 \why{$\Cov(X_1,X_1)=\Var X_1$; $\epsilon$ independent of $X_1$}
+\end{align*}
+Divide both sides by $\sigma_{X_1}^2$:
+\begin{keybox}
+\[\beta_1=\frac{\Cov(X_1,Y)}{\sigma_{X_1}^2}.\]
+\end{keybox}
+\textbf{Why this move works.} Taking $\Cov(X_1,\cdot)$ of the model ``kills'' everything not connected to $X_1$: constants vanish and the noise
+is uncorrelated with $X_1$. Only the $\beta_1X_1$ term survives. You will use this same move for omitted-variable bias (Section~\ref{sec:ovb})
+and the two-predictor system (Section~\ref{sec:system}).
+
+\subsection{The intercept: $\beta_0=\E[Y]-\beta_1\E[X_1]$}\label{sec:beta0}
+\begin{methodbox}
+\goal{$\beta_0$.}
+\start{the model equation.}
+\moves{\mv{1}\,\mv{2} take the expectation of both sides; use $\E[\epsilon]=0$; solve for $\beta_0$.}
+\end{methodbox}
+\begin{align*}
+\E[Y]&=\E[\beta_0+\beta_1X_1+\epsilon] \why{take $\E$ of both sides}\\
+&=\beta_0+\beta_1\E[X_1]+\E[\epsilon] \why{linearity}\\
+&=\beta_0+\beta_1\E[X_1] \why{$\E[\epsilon]=0$}
+\end{align*}
+\begin{keybox}
+\[\beta_0=\E[Y]-\beta_1\E[X_1].\]
+\end{keybox}
+\textbf{Meaning.} The line passes through the point of means $(\E X_1,\E Y)$. The least squares version is $\hat\beta_0=\Ybar-\hat\beta_1\Xbar$.
+
+\subsection{(extra) A binary predictor: $\beta_1$ is a difference of group means}\label{sec:binary}
+\begin{methodbox}
+\goal{read $\beta_1$ off group averages when $X_1\in\{0,1\}$.}
+\start{the model, conditioned on each value of $X_1$.}
+\moves{\mv{5} condition on $X_1=1$ and on $X_1=0$; \mv{2} take $\E$; subtract.}
+\end{methodbox}
+Given $X_1=x$, the terms $\beta_0+\beta_1x$ are constants, so $\E[Y\given X_1=x]=\beta_0+\beta_1x+\E[\epsilon]=\beta_0+\beta_1x$. Therefore
+\[
+\E[Y\given X_1=1]-\E[Y\given X_1=0]=(\beta_0+\beta_1)-\beta_0=\beta_1 .
+\]
+This is how the notes read slopes off plots (Lecture 7) and is the basis of the graders example and of the second OVB method in
+Section~\ref{sec:ovb}.
+
+\subsection{The variance equation: $\sigma_Y^2=\beta_1^2\sigma_{X_1}^2+\sigma_\epsilon^2$}\label{sec:varY}
+\begin{methodbox}
+\goal{split the variance of $Y$ into the part from $X_1$ and the part from noise.}
+\start{the model equation.}
+\moves{\mv{1}\,\mv{4} take $\Var$ of both sides; the two random pieces are independent, so their variances add.}
+\end{methodbox}
+\begin{align*}
+\sigma_Y^2=\Var(Y)&=\Var(\beta_0+\beta_1X_1+\epsilon) \why{substitute the model}\\
+&=\Var(\beta_1X_1)+\Var(\epsilon) \why{constant $\beta_0$ drops; $X_1,\epsilon$ independent}\\
+&=\beta_1^2\sigma_{X_1}^2+\sigma_\epsilon^2 \why{$\Var(aX)=a^2\Var X$}
+\end{align*}
+\begin{keybox}
+\[\sigma_Y^2=\beta_1^2\sigma_{X_1}^2+\sigma_\epsilon^2 .\]
+\end{keybox}
+\textbf{Common slip:} $\Var(\beta_1X_1)$ is $\beta_1^2\sigma_{X_1}^2$, not $\beta_1\sigma_{X_1}^2$. The coefficient comes out \emph{squared}.
+
+\subsection{The conditional variance: $\Var(Y\given X_1)=\sigma_\epsilon^2$}\label{sec:condvar}
+\begin{methodbox}
+\goal{how much $Y$ varies once $X_1$ is known.}
+\start{the model equation.}
+\moves{\mv{5} once $X_1$ is known, $\beta_0+\beta_1X_1$ is a constant; \mv{4} a constant does not change variance.}
+\end{methodbox}
+\begin{align*}
+\Var(Y\given X_1)&=\Var(\beta_0+\beta_1X_1+\epsilon\given X_1) \why{substitute the model}\\
+&=\Var(\epsilon\given X_1) \why{$\beta_0+\beta_1X_1$ is a known constant}\\
+&=\sigma_\epsilon^2 \why{$\epsilon$ independent of $X_1$}
+\end{align*}
+\textbf{Meaning.} $\sigma_\epsilon^2$ is the spread of the points around the line; $\sigma_Y^2$ is the total spread. Comparing the two is
+exactly what $\rho^2$ does.
+
+\subsection{Correlation: $\rho=\beta_1\,\sigma_{X_1}/\sigma_Y$}\label{sec:rho}
+\begin{methodbox}
+\goal{the slope in standard-deviation units.}
+\start{either the definition $\rho=\Cov(X_1,Y)/(\sigma_{X_1}\sigma_Y)$ (method A) or the model in standardized variables (method B).}
+\moves{A: substitute $\Cov(X_1,Y)=\beta_1\sigma_{X_1}^2$ from Section~\ref{sec:beta1} and cancel. \ B: \mv{1}\,\mv{6} standardize both
+sides and read off the new slope.}
+\end{methodbox}
+\textbf{Method A (fast, use on the exam).}
+\[
+\rho=\frac{\Cov(X_1,Y)}{\sigma_{X_1}\sigma_Y}=\frac{\beta_1\sigma_{X_1}^2}{\sigma_{X_1}\sigma_Y}=\beta_1\frac{\sigma_{X_1}}{\sigma_Y}.
+\]
+\textbf{Method B (shows \emph{why} it is called ``rescaling'').} Let $Z_X=(X_1-\mu_X)/\sigma_{X_1}$ and $Z_Y=(Y-\mu_Y)/\sigma_Y$, with
+$\mu_Y=\beta_0+\beta_1\mu_X$ from Section~\ref{sec:beta0}.
+\begin{align*}
+Z_Y=\frac{Y-\mu_Y}{\sigma_Y}
+&=\frac{(\beta_0+\beta_1X_1+\epsilon)-(\beta_0+\beta_1\mu_X)}{\sigma_Y} \why{substitute $Y$ and $\mu_Y$}\\
+&=\frac{\beta_1(X_1-\mu_X)+\epsilon}{\sigma_Y} \why{$\beta_0$ cancels}\\
+&=\frac{\beta_1\sigma_{X_1}}{\sigma_Y}\cdot\frac{X_1-\mu_X}{\sigma_{X_1}}+\frac{\epsilon}{\sigma_Y} \why{multiply and divide by $\sigma_{X_1}$}\\
+&=\underbrace{\frac{\beta_1\sigma_{X_1}}{\sigma_Y}}_{\text{new slope}}\,Z_X+\frac{\epsilon}{\sigma_Y}. \why{definition of $Z_X$}
+\end{align*}
+\begin{keybox}
+\[\rho=\beta_1\frac{\sigma_{X_1}}{\sigma_Y}=\frac{\Cov(X_1,Y)}{\sigma_{X_1}\sigma_Y}
+\qquad\text{= the slope of $Z_Y$ on $Z_X$.}\]
+\end{keybox}
+
+\subsection{Variance explained: $\rho^2=1-\Var(Y\given X)/\Var(Y)$}\label{sec:rho2}
+\begin{methodbox}
+\goal{$\rho^2$ as a fraction of variance.}
+\start{the variance equation $\sigma_Y^2=\beta_1^2\sigma_{X_1}^2+\sigma_\epsilon^2$ (Section~\ref{sec:varY}).}
+\moves{divide through by $\sigma_Y^2$; recognize $\beta_1^2\sigma_{X_1}^2/\sigma_Y^2=\rho^2$ (square Section~\ref{sec:rho}); replace
+$\sigma_\epsilon^2$ by $\Var(Y\given X)$ (Section~\ref{sec:condvar}).}
+\end{methodbox}
+\begin{align*}
+\sigma_Y^2&=\beta_1^2\sigma_{X_1}^2+\sigma_\epsilon^2 \why{variance equation}\\
+1&=\frac{\beta_1^2\sigma_{X_1}^2}{\sigma_Y^2}+\frac{\sigma_\epsilon^2}{\sigma_Y^2} \why{divide by $\sigma_Y^2$}\\
+1&=\rho^2+\frac{\sigma_\epsilon^2}{\sigma_Y^2} \why{$\rho^2=(\beta_1\sigma_{X_1}/\sigma_Y)^2$}\\
+\rho^2&=1-\frac{\Var(Y\given X)}{\Var(Y)} \why{$\sigma_\epsilon^2=\Var(Y\given X)$, $\sigma_Y^2=\Var Y$}
+\end{align*}
+\begin{keybox}
+\[\rho^2=1-\frac{\Var(Y\given X)}{\Var(Y)}=\frac{\beta_1^2\sigma_{X_1}^2}{\sigma_Y^2}.\]
+\end{keybox}
+\textbf{Bonus: why $-1\le\rho\le1$.} Both pieces $\rho^2$ and $\sigma_\epsilon^2/\sigma_Y^2$ are $\ge0$ and add to $1$, so $\rho^2\le1$.
+
+%==========================================================
+\clearpage
+\section{Two (or more) predictors}\label{sec:twopred}
+%==========================================================
+Now the model is
+\[
+Y=\beta_0+\beta_1X_1+\beta_2X_2+\epsilon,\qquad\epsilon\sim\Norm(0,\sigma_\epsilon^2),\qquad\epsilon\text{ independent of }X_1,X_2 .
+\]
+$\beta_1$ is the effect of $X_1$ \emph{with $X_2$ held fixed}. We write $\beta_1'$ for the slope when $Y$ is regressed on $X_1$ alone.
+
+\subsection{Conditional variance and $\rho^2$ with two predictors; adding a predictor never lowers $\rho^2$}\label{sec:two-var}
+\begin{methodbox}
+\goal{(a) $\Var(Y\given X_1,X_2)$; (b) show $\rho^2$ with both predictors $\ge$ $\rho^2$ with $X_1$ alone.}
+\start{the two-predictor model.}
+\moves{\mv{5} condition on what is known; \mv{4} the remaining random pieces are independent, so variances add; compare.}
+\end{methodbox}
+\textbf{(a)} Given both $X_1$ and $X_2$, the whole $\beta_0+\beta_1X_1+\beta_2X_2$ is a constant, so exactly as in Section~\ref{sec:condvar},
+\[
+\Var(Y\given X_1,X_2)=\Var(\epsilon)=\sigma_\epsilon^2,\qquad\text{so}\qquad \rho^2=1-\frac{\Var(Y\given X_1,X_2)}{\Var Y}=1-\frac{\sigma_\epsilon^2}{\sigma_Y^2}.
+\]
+(Taking $\Var$ of the model, with \mv{4}'s general rule since $X_1,X_2$ may be correlated:
+$\sigma_Y^2=\beta_1^2\sigma_{X_1}^2+\beta_2^2\sigma_{X_2}^2+2\beta_1\beta_2\Cov(X_1,X_2)+\sigma_\epsilon^2$.)
+
+\textbf{(b)} Given only $X_1$, the term $\beta_0+\beta_1X_1$ is a constant but $X_2$ and $\epsilon$ are still random:
+\begin{align*}
+\Var(Y\given X_1)&=\Var(\beta_2X_2+\epsilon\given X_1) \why{drop the known constant}\\
+&=\beta_2^2\Var(X_2\given X_1)+\sigma_\epsilon^2 \why{$\epsilon$ independent of $X_1,X_2$: variances add}\\
+&\ge\sigma_\epsilon^2=\Var(Y\given X_1,X_2). \why{a variance is $\ge0$}
+\end{align*}
+Since $\rho^2=1-\Var(Y\given\cdots)/\Var Y$, a smaller conditional variance means a bigger $\rho^2$:
+\begin{keybox}
+\[\rho^2_{\text{with }X_1,X_2}\ \ge\ \rho^2_{\text{with }X_1\text{ only}}.\]
+Adding a predictor never decreases $\rho^2$ (and the same argument with sample quantities shows $R^2$ never decreases).
+\end{keybox}
+
+\subsection{Omitted-variable bias: $\beta_1'=\beta_1+\beta_2\beta_{1,2}$}\label{sec:ovb}
+\begin{methodbox}
+\goal{the slope $\beta_1'$ you get if you regress $Y$ on $X_1$ alone, when the truth has two predictors.}
+\start{the one-predictor formula $\beta_1'=\Cov(X_1,Y)/\Var(X_1)$ (Section~\ref{sec:beta1}), which holds for \emph{any} $Y$.}
+\moves{\mv{1} substitute the \emph{two}-predictor model for $Y$; \mv{3} split the covariance; divide by $\Var X_1$; name the leftover ratio $\beta_{1,2}$.}
+\end{methodbox}
+\begin{align*}
+\Cov(X_1,Y)&=\Cov(X_1,\ \beta_0+\beta_1X_1+\beta_2X_2+\epsilon) \why{substitute the two-predictor model}\\
+&=\beta_1\Cov(X_1,X_1)+\beta_2\Cov(X_1,X_2)+\Cov(X_1,\epsilon) \why{bilinearity; $\beta_0$ drops out}\\
+&=\beta_1\Var(X_1)+\beta_2\Cov(X_1,X_2). \why{$\Cov(X_1,\epsilon)=0$}
+\end{align*}
+Divide by $\Var(X_1)$:
+\[
+\beta_1'=\frac{\Cov(X_1,Y)}{\Var(X_1)}=\beta_1+\beta_2\,\frac{\Cov(X_1,X_2)}{\Var(X_1)} .
+\]
+The last fraction has the same form as Section~\ref{sec:beta1} with $X_2$ in the role of $Y$: it is the slope when $X_2$ is regressed on $X_1$.
+\begin{keybox}[title={Omitted-variable bias}]
+\[
+\beta_1'=\beta_1+\beta_2\,\beta_{1,2},\qquad \beta_{1,2}=\frac{\Cov(X_1,X_2)}{\Var(X_1)}\ \ \text{(slope of $X_2$ on $X_1$)}.
+\]
+The bias $\beta_2\beta_{1,2}$ is $0$ only if $\beta_2=0$ (no effect) or $\beta_{1,2}=0$ (uncorrelated, as in a randomized trial).
+\end{keybox}
+(The notes assume mean-zero predictors and no intercept ``for simplicity''. As the steps above show, that is not needed: constants
+always drop out of a covariance.)
+
+\textbf{Method 2: conditional means (when $X_1$ is binary).} This is how Lecture 12 explained the test-score example. Condition on $X_1$ \mv{5}
+and take $\E$ \mv{2}:
+\[
+\E[Y\given X_1]=\beta_0+\beta_1X_1+\beta_2\E[X_2\given X_1]+\underbrace{\E[\epsilon\given X_1]}_{0}.
+\]
+Subtract the $X_1=0$ version from the $X_1=1$ version (as in Section~\ref{sec:binary}):
+\[
+\underbrace{\E[Y\given X_1{=}1]-\E[Y\given X_1{=}0]}_{\beta_1'}=\beta_1+\beta_2\underbrace{\big(\E[X_2\given X_1{=}1]-\E[X_2\given X_1{=}0]\big)}_{\beta_{1,2}} .
+\]
+Same formula. Check with the numbers: $11.8\approx5.95+0.56\times10.3$.
+
+\begin{tipbox}[title={Trick from the crime example: two OVB slopes give the predictor correlation}]
+$\beta_{1,2}\,\beta_{2,1}=\dfrac{\Cov(X_1,X_2)}{\Var X_1}\cdot\dfrac{\Cov(X_1,X_2)}{\Var X_2}=\left(\dfrac{\Cov(X_1,X_2)}{\sigma_{X_1}\sigma_{X_2}}\right)^2=\rho_{1,2}^2 .$
+So if you solve OVB both ways for the two slopes, $\rho_{1,2}=\pm\sqrt{\beta_{1,2}\beta_{2,1}}$, with the sign of the slopes.
+\end{tipbox}
+
+\subsection{(extra) Omitted-variable bias with $K$ predictors}\label{sec:ovbk}
+\begin{methodbox}
+\goal{$\beta_1'$ when $X_2,\dots,X_K$ are all left out.}
+\start{$\beta_1'=\Cov(X_1,Y)/\Var(X_1)$.}
+\moves{identical to Section~\ref{sec:ovb}: \mv{1}\,\mv{3}, now with a sum of left-out terms.}
+\end{methodbox}
+\begin{align*}
+\Cov(X_1,Y)&=\Cov\Big(X_1,\ \beta_0+\beta_1X_1+\sum_{j=2}^K\beta_jX_j+\epsilon\Big) \why{substitute the model}\\
+&=\beta_1\Var(X_1)+\sum_{j=2}^K\beta_j\Cov(X_1,X_j)+0 \why{bilinearity, one term at a time}
+\end{align*}
+\begin{keybox}
+\[\beta_1'=\beta_1+\sum_{j=2}^K\beta_j\,\beta_{1,j},\qquad\beta_{1,j}=\frac{\Cov(X_1,X_j)}{\Var(X_1)} .\]
+Picture: every path from $X_1$ to $Y$ adds up: the direct arrow $\beta_1$, plus each detour $X_1\to X_j\to Y$ worth $\beta_{1,j}\beta_j$.
+\end{keybox}
+
+\subsection{(extra) The covariance system: solving for $\beta_1$ and $\beta_2$}\label{sec:system}
+\begin{methodbox}
+\goal{the two-predictor coefficients in terms of covariances.}
+\start{the two-predictor model.}
+\moves{\mv{3} \emph{twice}: take $\Cov(X_1,\cdot)$ and $\Cov(X_2,\cdot)$ of the model. That gives two equations in two unknowns; eliminate $\beta_2$.}
+\end{methodbox}
+Write $c=\Cov(X_1,X_2)$. The first line was done in Section~\ref{sec:ovb}; the second is the same move with $X_2$:
+\begin{align*}
+\Cov(X_1,Y)&=\beta_1\sigma_{X_1}^2+\beta_2\,c \tag{i}\\
+\Cov(X_2,Y)&=\beta_1\,c+\beta_2\sigma_{X_2}^2 \tag{ii}
+\end{align*}
+\textbf{Eliminate $\beta_2$:} multiply (i) by $\sigma_{X_2}^2$ and (ii) by $c$, then subtract:
+\[
+\sigma_{X_2}^2\Cov(X_1,Y)-c\,\Cov(X_2,Y)=\beta_1\big(\sigma_{X_1}^2\sigma_{X_2}^2-c^2\big).
+\]
+\begin{keybox}
+\[
+\beta_1=\frac{\Cov(X_1,Y)\,\sigma_{X_2}^2-\Cov(X_2,Y)\,\Cov(X_1,X_2)}{\sigma_{X_1}^2\sigma_{X_2}^2-\Cov(X_1,X_2)^2}
+\ \overset{\text{standardized}}{=}\ \frac{\rho_1-\rho_{1,2}\,\rho_2}{1-\rho_{1,2}^2},
+\]
+where $\rho_k=\corr(X_k,Y)$ and $\rho_{1,2}=\corr(X_1,X_2)$.
+\end{keybox}
+For the standardized version, put all of $X_1,X_2,Y$ in SD units \mv{6}: then every $\sigma=1$, $\Cov(X_k,Y)=\rho_k$, and $c=\rho_{1,2}$.
+\textbf{Checks:} (1) dividing (i) by $\sigma_{X_1}^2$ is exactly OVB; (2) if $\rho_{1,2}=0$ then $\beta_1=\rho_1$, the single-predictor slope.
+
+\textbf{Matrix form (as in the notes).} (i)--(ii) say $\big(\Cov(X_1,Y),\Cov(X_2,Y)\big)^T=\Sigma\,(\beta_1,\beta_2)^T$ with
+$\Sigma=\begin{bmatrix}\sigma_{X_1}^2&c\\c&\sigma_{X_2}^2\end{bmatrix}$, so $(\beta_1,\beta_2)^T=\Sigma^{-1}\big(\Cov(X_1,Y),\Cov(X_2,Y)\big)^T$
+using $\begin{bmatrix}a&b\\b&d\end{bmatrix}^{-1}=\frac{1}{ad-b^2}\begin{bmatrix}d&-b\\-b&a\end{bmatrix}$. It gives the same $\beta_1$.
+
+\subsection{(extra) Correlated predictors inflate the standard error}\label{sec:inflate}
+\begin{methodbox}
+\goal{$\se(\hat\beta_1)$ when $X_2$ is also in the model.}
+\start{the result stated in the notes (Unit 4.3--4.4): the variances and covariance of $(\hat\beta_1,\hat\beta_2)$ are $\frac{\sigma_\epsilon^2}{N}\Sigma^{-1}$.}
+\moves{invert $\Sigma$ (2$\times$2 rule); read off the diagonal for variances and the off-diagonal for the covariance; simplify with
+$c=\rho_{1,2}\sigma_{X_1}\sigma_{X_2}$.}
+\end{methodbox}
+Since $c=\rho_{1,2}\sigma_{X_1}\sigma_{X_2}$, the determinant is $\sigma_{X_1}^2\sigma_{X_2}^2-c^2=\sigma_{X_1}^2\sigma_{X_2}^2(1-\rho_{1,2}^2)$. The top-left entry of $\Sigma^{-1}$ is
+\[
+\frac{\sigma_{X_2}^2}{\sigma_{X_1}^2\sigma_{X_2}^2(1-\rho_{1,2}^2)}=\frac{1}{\sigma_{X_1}^2(1-\rho_{1,2}^2)}
+\quad\Longrightarrow\quad
+\Var(\hat\beta_1)=\frac{\sigma_\epsilon^2}{N\sigma_{X_1}^2(1-\rho_{1,2}^2)} .
+\]
+\begin{keybox}
+\[
+\se(\hat\beta_1)=\frac{\sigma_\epsilon}{\sigma_{X_1}\sqrt{N(1-\rho_{1,2}^2)}}=\underbrace{\frac{\sigma_\epsilon}{\sigma_{X_1}\sqrt N}}_{\text{one predictor}}\cdot\frac{1}{\sqrt{1-\rho_{1,2}^2}},
+\qquad \corr(\hat\beta_1,\hat\beta_2)=-\rho_{1,2}.
+\]
+\end{keybox}
+\textbf{Correlation of the estimates} (standardized predictors): $\Sigma^{-1}=\frac{1}{1-\rho_{1,2}^2}\begin{bmatrix}1&-\rho_{1,2}\\-\rho_{1,2}&1\end{bmatrix}$,
+so $\corr=\dfrac{\Cov}{\se\cdot\se}=\dfrac{-\rho_{1,2}/(1-\rho_{1,2}^2)}{1/(1-\rho_{1,2}^2)}=-\rho_{1,2}$.
+
+\textbf{Method 2 (intuition you can rebuild from the sheet).} Only the part of $X_1$ that $X_2$ cannot predict helps separate $\beta_1$ from
+$\beta_2$. Apply the variance-explained formula (Section~\ref{sec:rho2}) to $X_1$ regressed on $X_2$: the leftover variance is
+$\Var(X_1\given X_2)=(1-\rho_{1,2}^2)\sigma_{X_1}^2$. Put that leftover SD in place of $\sigma_{X_1}$ in $\se=\sigma_\epsilon/(\sigma_{X_1}\sqrt N)$ and you get
+the boxed formula.
+
+%==========================================================
+\clearpage
+\section{Estimators and their sample distributions}\label{sec:est}
+%==========================================================
+\subsection{Definitions (nothing to derive)}
+$Y_1,\dots,Y_N$ iid; an estimator $\hat\theta=\hat\theta(Y_1,\dots,Y_N)$ is any function of the data. Over replicate datasets it varies; its
+distribution over replicates is the \textbf{sample distribution} and its standard deviation is $\se(\hat\theta)=\sqrt{\Var(\hat\theta)}$.
+$\bias(\hat\theta)=\E[\hat\theta]-\theta$. These are definitions: learn them, do not derive them.
+
+\subsection{The sample mean: $\Ybar\approx\Norm(\mu,\sigma^2/N)$, $\se(\Ybar)=\sigma/\sqrt N$}\label{sec:ybar}
+\begin{methodbox}
+\goal{the sample distribution of $\Ybar$ when $\E Y_i=\mu$, $\Var Y_i=\sigma^2$.}
+\start{$\Ybar=\frac1N\sum_iY_i$.}
+\moves{the general recipe: \mv{2} center, \mv{4} spread (independence: variances add), \mv{7} shape.}
+\end{methodbox}
+\textbf{Center.}
+\[
+\E[\Ybar]=\E\Big[\frac1N\sum_iY_i\Big]=\frac1N\sum_i\E[Y_i]=\frac1N\cdot N\mu=\mu .
+\]
+\textbf{Spread.}
+\begin{align*}
+\Var(\Ybar)&=\Var\Big(\frac1N\sum_iY_i\Big)=\frac{1}{N^2}\Var\Big(\sum_iY_i\Big) \why{$\Var(aX)=a^2\Var X$ with $a=1/N$}\\
+&=\frac{1}{N^2}\sum_i\Var(Y_i)=\frac{1}{N^2}\cdot N\sigma^2=\frac{\sigma^2}{N} \why{independent: variances add}
+\end{align*}
+\textbf{Shape.} If the $Y_i$ are Normal, $\sum_iY_i$ is exactly Normal (a sum of independent Normals). Otherwise the CLT says
+$\Ybar$ is approximately Normal for large $N$.
+\begin{keybox}
+\[\Ybar\approx\Norm\Big(\mu,\ \frac{\sigma^2}{N}\Big),\qquad\se(\Ybar)=\frac{\sigma}{\sqrt N}.\]
+Unbiased ($\E\Ybar=\mu$) and consistent ($\se\to0$).
+\end{keybox}
+\textbf{Bernoulli version.} If $Y_i\sim\Bern(q)$ then $\mu=q$ and $\sigma^2=q(1-q)$, so $\hat q=\Ybar\approx\Norm\big(q,\ q(1-q)/N\big)$.
+
+\textbf{Common slips:} the $1/N$ comes out of the variance \emph{squared} ($1/N^2$); $\se$ has $\sqrt N$, the variance has $N$.
+
+\subsection{Bias--variance decomposition: $\MSE=\se^2+\bias^2$}\label{sec:mse}
+\begin{methodbox}
+\goal{split $\MSE_{\hat\theta}=\E[(\hat\theta-\theta)^2]$ into variance and bias.}
+\start{either the variance formula $\Var(W)=\E[W^2]-(\E W)^2$ (method A, the notes' proof) or the square itself (method B).}
+\moves{A: apply the formula to $W=\hat\theta-\theta$. \ B: \mv{10} add and subtract $\E[\hat\theta]$, expand, show the cross term is $0$.}
+\end{methodbox}
+\textbf{Method A.} Let $W=\hat\theta-\theta$. Since $\theta$ is a fixed number, $\Var(W)=\Var(\hat\theta)$ and $\E W=\E\hat\theta-\theta$.
+\begin{align*}
+\Var(W)&=\E[W^2]-(\E W)^2 \why{variance formula}\\
+\Var(\hat\theta)&=\E\big[(\hat\theta-\theta)^2\big]-\big(\E[\hat\theta]-\theta\big)^2 \why{shifting by $\theta$ does not change variance}\\
+\se(\hat\theta)^2&=\MSE_{\hat\theta}-\bias(\hat\theta)^2 . \why{definitions}
+\end{align*}
+\textbf{Method B.} Write $m=\E[\hat\theta]$ (a constant).
+\begin{align*}
+\E\big[(\hat\theta-\theta)^2\big]&=\E\big[\big((\hat\theta-m)+(m-\theta)\big)^2\big] \why{add and subtract $m$}\\
+&=\E\big[(\hat\theta-m)^2\big]+2(m-\theta)\,\E[\hat\theta-m]+(m-\theta)^2 \why{expand; $m-\theta$ is a constant}\\
+&=\Var(\hat\theta)+0+(m-\theta)^2 \why{$\E[\hat\theta-m]=m-m=0$}
+\end{align*}
+\begin{keybox}
+\[\MSE_{\hat\theta}=\se(\hat\theta)^2+\bias(\hat\theta)^2 .\]
+\end{keybox}
+
+\subsection{(extra) Bessel's correction: why divide by $N-1$}\label{sec:bessel}
+\begin{methodbox}
+\goal{$\E\big[\sum_i(Y_i-\Ybar)^2\big]$.}
+\start{the sum of squares $\sum_i(Y_i-\Ybar)^2$.}
+\moves{\mv{10} add and subtract $\mu$ inside the square; expand; use $\sum_i(Y_i-\mu)=N(\Ybar-\mu)$; take $\E$ using
+$\E[(Y_i-\mu)^2]=\sigma^2$ and $\E[(\Ybar-\mu)^2]=\Var\Ybar=\sigma^2/N$.}
+\end{methodbox}
+\begin{align*}
+\sum_i(Y_i-\Ybar)^2&=\sum_i\big[(Y_i-\mu)-(\Ybar-\mu)\big]^2 \why{add and subtract $\mu$}\\
+&=\sum_i(Y_i-\mu)^2-2(\Ybar-\mu)\sum_i(Y_i-\mu)+N(\Ybar-\mu)^2 \why{expand; $\Ybar-\mu$ same for all $i$}\\
+&=\sum_i(Y_i-\mu)^2-2N(\Ybar-\mu)^2+N(\Ybar-\mu)^2 \why{$\sum_i(Y_i-\mu)=N(\Ybar-\mu)$}\\
+&=\sum_i(Y_i-\mu)^2-N(\Ybar-\mu)^2 .
+\end{align*}
+Take expectations: $\E\big[\sum_i(Y_i-\Ybar)^2\big]=N\sigma^2-N\cdot\frac{\sigma^2}{N}=(N-1)\sigma^2$.
+\begin{keybox}
+\[\hat\sigma_0^2=\tfrac1N\textstyle\sum_i(Y_i-\Ybar)^2\text{ has }\E[\hat\sigma_0^2]=\tfrac{N-1}{N}\sigma^2;\qquad
+\hat\sigma^2=\tfrac{1}{N-1}\textstyle\sum_i(Y_i-\Ybar)^2\text{ is unbiased.}\]
+\end{keybox}
+The same idea explains $\hat\sigma_\epsilon^2=\SSR/(N-2)$: two parameters were fitted from the data, so divide by $N-2$.
+
+%==========================================================
+\clearpage
+\section{Confidence intervals and hypothesis tests}\label{sec:citest}
+%==========================================================
+\subsection{The 95\% confidence interval: $\hat\theta\pm1.96\,\se(\hat\theta)$}\label{sec:ci}
+\begin{methodbox}
+\goal{an interval that contains $\theta$ in 95\% of replicates.}
+\start{the sample distribution $\hat\theta\approx\Norm(\theta,\se^2)$. This needs $\hat\theta$ \textbf{unbiased}, so the center is $\theta$.}
+\moves{\mv{6} standardize; \mv{9} 95\% of a standard Normal lies in $(-1.96,1.96)$; rearrange the inequality to isolate $\theta$.}
+\end{methodbox}
+\begin{align*}
+&\frac{\hat\theta-\theta}{\se(\hat\theta)}\approx\Norm(0,1) \why{standardize; uses $\E\hat\theta=\theta$}\\
+&\P\Big(-1.96<\frac{\hat\theta-\theta}{\se(\hat\theta)}<1.96\Big)\approx0.95 \why{$\P(|Z|<1.96)=0.95$}\\
+&\P\big(-1.96\,\se<\hat\theta-\theta<1.96\,\se\big)\approx0.95 \why{multiply through by $\se>0$}\\
+&\P\big(\hat\theta-1.96\,\se<\theta<\hat\theta+1.96\,\se\big)\approx0.95 \why{rearrange both inequalities for $\theta$}
+\end{align*}
+\begin{keybox}
+\[\text{95\% CI}=\big[\hat\theta-1.96\,\se(\hat\theta),\ \hat\theta+1.96\,\se(\hat\theta)\big]\qquad\text{(when $\hat\theta$ is unbiased).}\]
+The random thing is the interval, not $\theta$: over replicates, 95\% of such intervals contain $\theta$.
+\end{keybox}
+\textbf{Why ``unbiased'' matters.} If $\E\hat\theta\ne\theta$, the bell curve is centered in the wrong place and the step ``standardize'' fails:
+the interval covers $\theta$ less than 95\% of the time.
+
+\textbf{(extra) How much data for a target width.} If $\se=\sigma/\sqrt N$ and you want half-width at most $h$:
+$1.96\,\sigma/\sqrt N\le h\iff\sqrt N\ge1.96\,\sigma/h\iff N\ge(1.96\,\sigma/h)^2$.
+
+\subsection{The test statistic and $p$-value}\label{sec:test}
+\begin{methodbox}
+\goal{how surprising $\hat\beta_1$ would be if $H_0:\beta_1=0$ were true.}
+\start{the sample distribution $\hat\beta_1\approx\Norm(\beta_1,\se^2)$ (Section~\ref{sec:varb1}).}
+\moves{set $\beta_1=0$ (the null); \mv{6} standardize by $\se$; \mv{9} two tails of a standard Normal.}
+\end{methodbox}
+Under $H_0$, a replicate estimate $\hat\beta_1^*\approx\Norm(0,\se(\hat\beta_1)^2)$. Dividing by $\se$ \mv{6}:
+\[
+\hat T^*=\frac{\hat\beta_1^*}{\se(\hat\beta_1)}\approx\Norm(0,1),\qquad\text{and for our data}\qquad \hat T=\frac{\hat\beta_1}{\se(\hat\beta_1)} .
+\]
+The $p$-value is the chance a null replicate is at least as extreme as ours. Split it into two tails and use symmetry of $\Norm(0,1)$:
+\begin{align*}
+p_v=\P\big(|\hat T^*|>|\hat T|\big)&=\P\big(\hat T^*>|\hat T|\big)+\P\big(\hat T^*<-|\hat T|\big) \why{two tails}\\
+&=2\big(1-\Phi(|\hat T|)\big) \why{both tails have the same area}
+\end{align*}
+\begin{keybox}
+\[H_0:\beta_1=0,\qquad \hat T=\frac{\hat\beta_1}{\se(\hat\beta_1)},\qquad p_v=\P\big(|\hat T^*|>|\hat T|\big)=2\big(1-\Phi(|\hat T|)\big).\]
+\end{keybox}
+\textbf{By hand:} near $0$ the standard Normal density is about $0.4$, so $\P(|Z|<a)\approx0.8a$ for small $a$; then $p_v\approx1-0.8|\hat T|$.
+
+\subsection{$p_v<0.05\iff0\notin$ 95\% CI}\label{sec:ci-test}
+\begin{methodbox}
+\goal{show the test and the CI always agree.}
+\start{$\P(|Z|>1.96)=0.05$, and the larger $|\hat T|$ is, the smaller $p_v$ is.}
+\moves{a chain of equivalent statements: $p_v$ $\to$ $|\hat T|$ $\to$ $|\hat\beta_1|$ $\to$ the CI endpoints.}
+\end{methodbox}
+\begin{align*}
+p_v<0.05
+&\iff|\hat T|>1.96 \why{$p_v=0.05$ at $|\hat T|=1.96$; $p_v$ shrinks as $|\hat T|$ grows}\\
+&\iff|\hat\beta_1|>1.96\,\se(\hat\beta_1) \why{multiply by $\se>0$}\\
+&\iff\hat\beta_1-1.96\,\se>0\ \text{ or }\ \hat\beta_1+1.96\,\se<0 \why{$\hat\beta_1>1.96\,\se$ or $\hat\beta_1<-1.96\,\se$}\\
+&\iff\text{CI entirely above 0 or entirely below 0} \why{these are the CI endpoints}\\
+&\iff0\notin\text{95\% CI}.
+\end{align*}
+
+%==========================================================
+\clearpage
+\section{Least squares and the sample distribution of $\hat\beta_1$}\label{sec:ls}
+%==========================================================
+Data $(X_1,Y_1),\dots,(X_N,Y_N)$ from the one-predictor model. (Here $X_i$ means the $i$-th data point of the single predictor.)
+
+\subsection{The estimators $\hat\beta_1$ and $\hat\beta_0$}\label{sec:lsest}
+\begin{methodbox}
+\goal{estimates of $\beta_1,\beta_0$ from data.}
+\start{the population formulas $\beta_1=\Cov(X,Y)/\sigma_X^2$ and $\beta_0=\E Y-\beta_1\E X$ (Sections~\ref{sec:beta1}--\ref{sec:beta0}).}
+\moves{\mv{8} plug in: replace every $\E[\cdot]$ by $\frac1N\sum_i$ and $\E X,\E Y$ by $\Xbar,\Ybar$. The $\frac1N$'s cancel.}
+\end{methodbox}
+Write $\Cov(X,Y)=\E[(X-\E X)(Y-\E Y)]$ and $\sigma_X^2=\E[(X-\E X)^2]$, then plug in:
+\[
+\hat\beta_1=\frac{\frac1N\sum_i(X_i-\Xbar)(Y_i-\Ybar)}{\frac1N\sum_i(X_i-\Xbar)^2}=\frac{\sum_i(X_i-\Xbar)(Y_i-\Ybar)}{\sum_i(X_i-\Xbar)^2},
+\qquad \hat\beta_0=\Ybar-\hat\beta_1\Xbar .
+\]
+\textbf{Method 2 (calculus; the ``least squares'' name).} Minimize $f(b_0,b_1)=\sum_i(Y_i-b_0-b_1X_i)^2$: set the derivative in each of $b_0,b_1$ to $0$.
+\begin{align*}
+\text{in }b_0:\quad&\textstyle\sum_i-2(Y_i-b_0-b_1X_i)=0\ \Longrightarrow\ N\Ybar-Nb_0-b_1N\Xbar=0\ \Longrightarrow\ b_0=\Ybar-b_1\Xbar,\\
+\text{in }b_1:\quad&\textstyle\sum_i-2X_i(Y_i-b_0-b_1X_i)=0 .
+\end{align*}
+Substitute $b_0$ into the second equation: $\sum_iX_i\big[(Y_i-\Ybar)-b_1(X_i-\Xbar)\big]=0$, so $b_1=\frac{\sum_iX_i(Y_i-\Ybar)}{\sum_iX_i(X_i-\Xbar)}$.
+Then the sum trick \mv{11}: subtracting $\Xbar\sum_i(Y_i-\Ybar)=0$ on top and $\Xbar\sum_i(X_i-\Xbar)=0$ on the bottom turns $X_i$ into
+$(X_i-\Xbar)$, giving the same $\hat\beta_1$.
+\begin{keybox}
+\[\hat\beta_1=\frac{\sum_i(X_i-\Xbar)(Y_i-\Ybar)}{\sum_i(X_i-\Xbar)^2},\qquad\hat\beta_0=\Ybar-\hat\beta_1\Xbar .\]
+\end{keybox}
+
+\subsection{(extra) $\hat\sigma_\epsilon^2$ and $R^2$}\label{sec:r2}
+\begin{methodbox}
+\goal{estimates of $\sigma_\epsilon^2$ and $\rho^2$.}
+\start{$\sigma_\epsilon^2=\Var(Y\given X)$ and $\rho^2=1-\Var(Y\given X)/\Var(Y)$.}
+\moves{\mv{8} plug in: the spread around the line is estimated by the residuals; the total spread by deviations from $\Ybar$.}
+\end{methodbox}
+Residuals $r_i=Y_i-\hat\beta_0-\hat\beta_1X_i$, $\SSR=\sum_ir_i^2$, $\SST=\sum_i(Y_i-\Ybar)^2$. Then $\Var(Y\given X)\approx\SSR/N$ and
+$\Var(Y)\approx\SST/N$, and the $N$'s cancel in the ratio:
+\begin{keybox}
+\[\hat\sigma_\epsilon^2=\frac{\SSR}{N-2}\ \Big(\approx\frac{\SSR}{N}\Big),\qquad R^2=1-\frac{\SSR}{\SST}\approx\rho^2 .\]
+\end{keybox}
+(The $N-2$ instead of $N$ is Bessel's correction again, Section~\ref{sec:bessel}.)
+
+\subsection{$\hat\beta_1$ is unbiased: $\E[\hat\beta_1]=\beta_1$}\label{sec:unbiased}
+\begin{methodbox}
+\goal{$\E[\hat\beta_1\given X_1,\dots,X_N]$.}
+\start{the formula for $\hat\beta_1$, treating the $X$'s as fixed numbers \mv{5}.}
+\moves{\mv{2} linearity moves $\E$ onto the $Y$'s; \mv{1} $\E[Y_i\given X_i]=\beta_0+\beta_1X_i$; cancel.}
+\end{methodbox}
+Given the $X$'s, the weights $(X_i-\Xbar)$ and the denominator $S_{xx}=\sum_i(X_i-\Xbar)^2$ are constants.
+\begin{align*}
+\E[\hat\beta_1\given X]&=\frac{\sum_i(X_i-\Xbar)\,\E[Y_i-\Ybar\given X]}{S_{xx}} \why{linearity; constants come out}\\
+\E[Y_i-\Ybar\given X]&=(\beta_0+\beta_1X_i)-(\beta_0+\beta_1\Xbar)=\beta_1(X_i-\Xbar) \why{model, averaged over $i$ for $\Ybar$}\\
+\E[\hat\beta_1\given X]&=\frac{\sum_i(X_i-\Xbar)\,\beta_1(X_i-\Xbar)}{S_{xx}}=\beta_1\frac{S_{xx}}{S_{xx}}=\beta_1 . \why{substitute}
+\end{align*}
+\begin{keybox}
+\[\E[\hat\beta_1]=\beta_1\qquad\text{(conditional on the $X$'s).}\]
+The key ingredient is that the noise is independent of \emph{all} the predictors (this fails for AR models: the Hurwicz bias).
+\end{keybox}
+
+\subsection{The spread: $\se(\hat\beta_1)\approx\sigma_\epsilon/(\sigma_{X}\sqrt N)$}\label{sec:varb1}
+\begin{methodbox}
+\goal{$\Var(\hat\beta_1\given X)$, then the full sample distribution.}
+\start{$\hat\beta_1$ written as a weighted sum of the $Y_i$.}
+\moves{\mv{11} drop $\Ybar$ from the numerator; \mv{4} independent $Y_i$'s, each with $\Var(Y_i\given X_i)=\sigma_\epsilon^2$: variances add with weights squared;
+replace $S_{xx}$ by $N\sigma_X^2$; shape from ``a weighted sum of Normals is Normal''.}
+\end{methodbox}
+\textbf{Step 1: weighted sum.} $\sum_i(X_i-\Xbar)\Ybar=\Ybar\sum_i(X_i-\Xbar)=0$ \mv{11}, so
+\[
+\hat\beta_1=\frac{\sum_i(X_i-\Xbar)Y_i}{S_{xx}}=\sum_iw_iY_i,\qquad w_i=\frac{X_i-\Xbar}{S_{xx}} .
+\]
+\textbf{Step 2: variance.}
+\begin{align*}
+\Var(\hat\beta_1\given X)&=\sum_iw_i^2\Var(Y_i\given X_i) \why{independent $Y_i$; $\Var(w_iY_i)=w_i^2\Var Y_i$}\\
+&=\frac{\sum_i(X_i-\Xbar)^2}{S_{xx}^2}\,\sigma_\epsilon^2=\frac{S_{xx}}{S_{xx}^2}\,\sigma_\epsilon^2=\frac{\sigma_\epsilon^2}{S_{xx}} \why{$\Var(Y_i\given X_i)=\sigma_\epsilon^2$}\\
+&\approx\frac{\sigma_\epsilon^2}{N\sigma_X^2} \why{$S_{xx}/N$ is the sample variance of $X$, $\approx\sigma_X^2$}
+\end{align*}
+\textbf{Step 3: shape.} Given the $X$'s, each $Y_i$ is Normal, so the weighted sum $\hat\beta_1$ is Normal.
+\begin{keybox}
+\[\E[\hat\beta_1]=\beta_1,\qquad \se(\hat\beta_1)\approx\frac{\sigma_\epsilon}{\sigma_{X}\sqrt N},\qquad
+\hat\beta_1\approx\Norm\Big(\beta_1,\ \frac{\sigma_\epsilon^2}{N\sigma_{X}^2}\Big).\]
+More precise with less noise, more spread-out $X$'s, or more data.
+\end{keybox}
+\textbf{Compare with $\Ybar$.} The recipe is identical: $\Ybar$ has weights $1/N$ (giving $\sigma^2/N$); $\hat\beta_1$ has weights $w_i$ (giving $\sigma_\epsilon^2/S_{xx}$).
+
+\subsection{(extra) Check: a binary predictor gives a difference of means}\label{sec:binarycheck}
+\begin{methodbox}
+\goal{the same $\se$ by a second route when $X\sim\Bern(p)$.}
+\start{$\hat\beta_1=\overline{Y}_{X=1}-\overline{Y}_{X=0}$ (Section~\ref{sec:binary}).}
+\moves{each group mean is $\Ybar$ for that group \mv{7}; the groups are independent, so variances add \mv{4} (even though we subtract).}
+\end{methodbox}
+With $Np$ points in group 1 and $N(1-p)$ in group 0,
+\begin{align*}
+\Var(\hat\beta_1)&=\frac{\sigma_\epsilon^2}{Np}+\frac{\sigma_\epsilon^2}{N(1-p)} \why{$\Var(A-B)=\Var A+\Var B$ for independent $A,B$}\\
+&=\sigma_\epsilon^2\,\frac{(1-p)+p}{Np(1-p)}=\frac{\sigma_\epsilon^2}{N\,p(1-p)}=\frac{\sigma_\epsilon^2}{N\sigma_X^2} \why{$\sigma_X^2=p(1-p)$ for a Bernoulli}
+\end{align*}
+This matches Section~\ref{sec:varb1}. With equal groups ($p=\frac12$) it is $4\sigma_\epsilon^2/N$, the clinical-trial result.
+
+\subsection{(extra) $\hat T^2=(N-2)\,R^2/(1-R^2)$}\label{sec:tr2}
+\begin{methodbox}
+\goal{connect the test statistic to $R^2$.}
+\start{$r_i=(Y_i-\Ybar)-\hat\beta_1(X_i-\Xbar)$ (from $\hat\beta_0=\Ybar-\hat\beta_1\Xbar$), and $\se(\hat\beta_1)^2=\hat\sigma_\epsilon^2/S_{xx}$.}
+\moves{square and sum $r_i$ to get $\SSR=\SST-\hat\beta_1^2S_{xx}$; substitute into $\hat T^2$; divide top and bottom by $\SST$.}
+\end{methodbox}
+Using $\sum_i(X_i-\Xbar)(Y_i-\Ybar)=\hat\beta_1S_{xx}$ (the definition of $\hat\beta_1$):
+\begin{align*}
+\SSR&=\SST-2\hat\beta_1\sum_i(X_i-\Xbar)(Y_i-\Ybar)+\hat\beta_1^2S_{xx} \why{expand $\sum_ir_i^2$}\\
+&=\SST-2\hat\beta_1^2S_{xx}+\hat\beta_1^2S_{xx}=\SST-\hat\beta_1^2S_{xx}. \why{substitute}
+\end{align*}
+So $\hat\beta_1^2S_{xx}=\SST-\SSR$. With $\se^2=\SSR/((N-2)S_{xx})$:
+\begin{align*}
+\hat T^2=\frac{\hat\beta_1^2}{\se^2}&=\frac{(N-2)\hat\beta_1^2S_{xx}}{\SSR}=\frac{(N-2)(\SST-\SSR)}{\SSR} \why{substitute}\\
+&=(N-2)\frac{1-\SSR/\SST}{\SSR/\SST}=(N-2)\frac{R^2}{1-R^2}. \why{divide top and bottom by $\SST$}
+\end{align*}
+\textbf{Use:} a tiny $p_v$ with a small $R^2$ is possible (large $N$); a large $p_v$ with $R^2$ near 1 is not.
+
+%==========================================================
+\clearpage
+\section{Self-test: cover the right two columns}\label{sec:selftest}
+%==========================================================
+For each formula, say out loud what you start from and the key move, then check. If you can do every row, you can derive the whole sheet.
+{\small
+\renewcommand{\arraystretch}{1.28}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{4.6cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{6.6cm}@{}}
+\toprule
+\textbf{Result} & \textbf{Start from} & \textbf{Key move(s)}\\
+\midrule
+\endhead
+$\beta_1=\Cov(X_1,Y)/\sigma_{X_1}^2$ & model & $\Cov(X_1,\cdot)$ of both sides; $\beta_0$ and $\epsilon$ drop out\\
+$\beta_0=\E Y-\beta_1\E X_1$ & model & $\E$ of both sides; $\E\epsilon=0$\\
+binary $X$: $\beta_1=$ difference of group means & model given $X=1$ and $X=0$ & condition, take $\E$, subtract\\
+$\sigma_Y^2=\beta_1^2\sigma_{X_1}^2+\sigma_\epsilon^2$ & model & $\Var$ of both sides; independent pieces add; coefficient squared\\
+$\Var(Y\given X_1)=\sigma_\epsilon^2$ & model & given $X_1$, $\beta_0+\beta_1X_1$ is a constant\\
+$\rho=\beta_1\sigma_{X_1}/\sigma_Y$ & $\rho=\Cov/(\sigma_X\sigma_Y)$, or standardized model & substitute $\Cov=\beta_1\sigma_X^2$; or standardize and read the slope\\
+$\rho^2=1-\Var(Y\given X)/\Var Y$ & variance equation & divide by $\sigma_Y^2$; first term is $\rho^2$\\
+$\rho^2$ never decreases & $\Var(Y\given X_1)$ in the 2-predictor model & $=\beta_2^2\Var(X_2\given X_1)+\sigma_\epsilon^2\ge\sigma_\epsilon^2$\\
+OVB $\beta_1'=\beta_1+\beta_2\beta_{1,2}$ & $\beta_1'=\Cov(X_1,Y)/\Var X_1$ & substitute the \emph{2-predictor} model; bilinearity; divide\\
+OVB, $K$ predictors & same & same, one term per left-out $X_j$\\
+$\beta_{1,2}\beta_{2,1}=\rho_{1,2}^2$ & definitions of the slopes & multiply; $\Cov^2/(\Var\Var)$\\
+$\beta_1=\frac{\rho_1-\rho_{1,2}\rho_2}{1-\rho_{1,2}^2}$ & model & $\Cov(X_1,\cdot)$ \emph{and} $\Cov(X_2,\cdot)$; 2 equations; eliminate $\beta_2$\\
+$\se$ inflation $1/\sqrt{1-\rho_{1,2}^2}$ & $\frac{\sigma_\epsilon^2}{N}\Sigma^{-1}$ (given) & 2$\times$2 inverse; determinant $=\sigma_1^2\sigma_2^2(1-\rho_{1,2}^2)$\\
+$\Ybar\approx\Norm(\mu,\sigma^2/N)$ & $\Ybar=\frac1N\sum Y_i$ & $\E$: linearity; $\Var$: $\frac1{N^2}\cdot N\sigma^2$; shape: CLT\\
+$\MSE=\se^2+\bias^2$ & $\Var W=\E W^2-(\E W)^2$ & $W=\hat\theta-\theta$; or add and subtract $\E\hat\theta$\\
+Bessel ($N-1$) & $\sum(Y_i-\Ybar)^2$ & add and subtract $\mu$; $=\sum(Y_i-\mu)^2-N(\Ybar-\mu)^2$\\
+95\% CI $\hat\theta\pm1.96\,\se$ & $\hat\theta\approx\Norm(\theta,\se^2)$ (unbiased) & standardize; $\P(|Z|<1.96)=.95$; solve for $\theta$\\
+$\hat T$, $p_v=2(1-\Phi(|\hat T|))$ & $\hat\beta_1^*\approx\Norm(0,\se^2)$ under $H_0$ & divide by $\se$; two equal tails\\
+$p_v<.05\iff0\notin$ CI & $\P(|Z|>1.96)=.05$ & $|\hat T|>1.96\iff|\hat\beta_1|>1.96\,\se\iff$ CI misses 0\\
+$\hat\beta_1,\hat\beta_0$ & $\beta_1=\Cov/\sigma_X^2$, $\beta_0=\E Y-\beta_1\E X$ & plug in sample averages; or minimize SSR\\
+$\hat\sigma_\epsilon^2$, $R^2$ & $\sigma_\epsilon^2=\Var(Y\given X)$, $\rho^2$ & plug in $\SSR/N$ and $\SST/N$\\
+$\E\hat\beta_1=\beta_1$ & $\hat\beta_1$ formula, $X$'s fixed & linearity; $\E[Y_i-\Ybar\given X]=\beta_1(X_i-\Xbar)$\\
+$\se(\hat\beta_1)\approx\sigma_\epsilon/(\sigma_X\sqrt N)$ & $\hat\beta_1=\sum w_iY_i$ & sum trick drops $\Ybar$; $\Var=\sum w_i^2\sigma_\epsilon^2=\sigma_\epsilon^2/S_{xx}$\\
+binary-$X$ check & difference of group means & independent groups: variances add; $\sigma_X^2=p(1-p)$\\
+$\hat T^2=(N-2)\frac{R^2}{1-R^2}$ & $r_i=(Y_i-\Ybar)-\hat\beta_1(X_i-\Xbar)$ & $\SSR=\SST-\hat\beta_1^2S_{xx}$; divide by $\SST$\\
+\bottomrule
+\end{longtable}
+}
+
+\end{document}
